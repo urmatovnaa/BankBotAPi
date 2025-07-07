@@ -56,7 +56,7 @@ class QuestionCategorizer:
                     category = QuestionCategory(
                         name=category_data['name'],
                         description=category_data['description'],
-                        keywords=json.dumps(category_data['keywords'])
+                    keywords=json.dumps(category_data['keywords'])
                     )
                     db.session.add(category)
                 db.session.commit()

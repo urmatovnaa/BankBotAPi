@@ -32,6 +32,10 @@ with app.app_context():
     # Import models to ensure tables are created
     import models
     db.create_all()
+    
+    # Initialize categories
+    from categorization_service import question_categorizer
+    question_categorizer.initialize_categories()
 
 # Import and register routes
 from routes import *
