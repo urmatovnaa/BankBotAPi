@@ -21,6 +21,10 @@
                     <i class="fas fa-broom me-1"></i>
                     Clear Chat
                 </button>
+                <button class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#analyticsModal">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Analytics
+                </button>
                 <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal">
                     <i class="fas fa-info-circle me-1"></i>
                     Info
@@ -77,6 +81,64 @@
                             </small>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Modal -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1" aria-labelledby="analyticsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analyticsModalLabel">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Chatbot Analytics
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4" id="feedbackStats">
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-number" id="avgRating">-</div>
+                                <div class="stat-label">Average Rating</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalFeedback">-</div>
+                                <div class="stat-label">Total Feedback</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-number" id="helpfulPercentage">-</div>
+                                <div class="stat-label">Helpful (%)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6>Question Categories</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Questions</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryStats">
+                                <tr>
+                                    <td colspan="3" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

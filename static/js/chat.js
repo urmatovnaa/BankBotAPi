@@ -12,6 +12,7 @@ class BankingChatbot {
         
         this.initializeEventListeners();
         this.loadChatHistory();
+        this.setupAnalyticsModal();
     }
     
     initializeEventListeners() {
@@ -73,7 +74,7 @@ class BankingChatbot {
             if (response.ok) {
                 // Remove typing indicator and add bot response
                 this.hideTypingIndicator();
-                this.addMessage(data.response, 'bot', data.timestamp);
+                this.addMessage(data.response, 'bot', data.timestamp, data.message_id, data.category);
             } else {
                 throw new Error(data.error || 'Failed to send message');
             }
@@ -88,7 +89,7 @@ class BankingChatbot {
         }
     }
     
-    addMessage(text, sender, timestamp = null) {
+    addMessage(text, sender, timestamp = null, messageId = null, category = null, feedback = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
         
@@ -113,8 +114,17 @@ class BankingChatbot {
                 <i class="fas fa-robot me-2"></i>
                 <strong>Banking Assistant</strong>
                 <small class="text-muted ms-2">${this.formatTimestamp(timestamp)}</small>
+                ${category ? `<span class="badge bg-secondary ms-2">${category}</span>` : ''}
             `;
             textDiv.innerHTML = this.formatBotMessage(text);
+            
+            // Add feedback section for bot messages
+            if (messageId) {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'message-feedback mt-2';
+                feedbackDiv.innerHTML = this.createFeedbackSection(messageId, feedback);
+                contentDiv.appendChild(feedbackDiv);
+            }
         }
         
         contentDiv.appendChild(headerDiv);
@@ -123,6 +133,44 @@ class BankingChatbot {
         
         this.chatMessages.appendChild(messageDiv);
         this.scrollToBottom();
+    }
+    
+    createFeedbackSection(messageId, existingFeedback = null) {
+        const hasExistingFeedback = existingFeedback && existingFeedback.rating;
+        const currentRating = hasExistingFeedback ? existingFeedback.rating : 0;
+        const isHelpful = hasExistingFeedback ? existingFeedback.is_helpful : null;
+        
+        return `
+            <div class="feedback-section">
+                <div class="feedback-question">
+                    <small class="text-muted">Was this response helpful?</small>
+                </div>
+                <div class="feedback-controls mt-1">
+                    <div class="rating-stars" data-message-id="${messageId}">
+                        ${[1, 2, 3, 4, 5].map(star => `
+                            <i class="fas fa-star rating-star ${star <= currentRating ? 'active' : ''}" 
+                               data-rating="${star}" 
+                               onclick="chatBot.submitRating(${messageId}, ${star})"></i>
+                        `).join('')}
+                    </div>
+                    <div class="helpful-buttons ms-3">
+                        <button class="btn btn-sm btn-outline-success ${isHelpful === true ? 'active' : ''}" 
+                                onclick="chatBot.submitHelpful(${messageId}, true)">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-1 ${isHelpful === false ? 'active' : ''}" 
+                                onclick="chatBot.submitHelpful(${messageId}, false)">
+                            <i class="fas fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+                ${hasExistingFeedback && existingFeedback.comment ? `
+                    <div class="feedback-comment mt-2">
+                        <small class="text-muted">Your feedback: "${existingFeedback.comment}"</small>
+                    </div>
+                ` : ''}
+            </div>
+        `;
     }
     
     formatBotMessage(text) {
@@ -258,7 +306,7 @@ class BankingChatbot {
                 // Add historical messages
                 data.messages.forEach(msg => {
                     this.addMessage(msg.message, 'user', msg.timestamp);
-                    this.addMessage(msg.response, 'bot', msg.timestamp);
+                    this.addMessage(msg.response, 'bot', msg.timestamp, msg.id, msg.category, msg.feedback);
                 });
             }
         } catch (error) {
@@ -328,9 +376,144 @@ class BankingChatbot {
         div.textContent = text;
         return div.innerHTML;
     }
+    
+    async submitRating(messageId, rating) {
+        try {
+            const response = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    message_id: messageId, 
+                    rating: rating 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Update the star display
+                const ratingStars = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (ratingStars) {
+                    const stars = ratingStars.querySelectorAll('.rating-star');
+                    stars.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.add('active');
+                        } else {
+                            star.classList.remove('active');
+                        }
+                    });
+                }
+                
+                this.showSuccess('Thank you for your feedback!');
+            } else {
+                throw new Error(data.error || 'Failed to submit rating');
+            }
+        } catch (error) {
+            console.error('Error submitting rating:', error);
+            this.showError('Failed to submit rating. Please try again.');
+        }
+    }
+    
+    async submitHelpful(messageId, isHelpful) {
+        try {
+            const response = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    message_id: messageId, 
+                    is_helpful: isHelpful,
+                    rating: 3 // Default rating if not provided
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Update the button states
+                const feedbackSection = document.querySelector(`[data-message-id="${messageId}"]`).closest('.feedback-section');
+                const buttons = feedbackSection.querySelectorAll('.helpful-buttons button');
+                buttons.forEach(button => button.classList.remove('active'));
+                
+                // Activate the clicked button
+                const clickedButton = feedbackSection.querySelector(`button[onclick*="${isHelpful}"]`);
+                if (clickedButton) {
+                    clickedButton.classList.add('active');
+                }
+                
+                this.showSuccess('Thank you for your feedback!');
+            } else {
+                throw new Error(data.error || 'Failed to submit feedback');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            this.showError('Failed to submit feedback. Please try again.');
+        }
+    }
+    
+    setupAnalyticsModal() {
+        // Load analytics when the modal is shown
+        const analyticsModal = document.getElementById('analyticsModal');
+        if (analyticsModal) {
+            analyticsModal.addEventListener('show.bs.modal', () => {
+                this.loadAnalytics();
+            });
+        }
+    }
+    
+    async loadAnalytics() {
+        try {
+            const response = await fetch('/api/analytics');
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Update feedback statistics
+                const feedbackStats = data.feedback_stats;
+                document.getElementById('avgRating').textContent = feedbackStats.average_rating.toFixed(1);
+                document.getElementById('totalFeedback').textContent = feedbackStats.total_feedback;
+                
+                const helpfulPercentage = feedbackStats.total_feedback > 0 
+                    ? Math.round((feedbackStats.helpful_count / feedbackStats.total_feedback) * 100)
+                    : 0;
+                document.getElementById('helpfulPercentage').textContent = helpfulPercentage;
+                
+                // Update category statistics
+                const categoryStats = data.category_stats;
+                const totalQuestions = categoryStats.reduce((sum, cat) => sum + cat.count, 0);
+                
+                const categoryTable = document.getElementById('categoryStats');
+                categoryTable.innerHTML = '';
+                
+                if (categoryStats.length === 0) {
+                    categoryTable.innerHTML = '<tr><td colspan="3" class="text-center">No data available yet</td></tr>';
+                } else {
+                    categoryStats.forEach(stat => {
+                        const percentage = totalQuestions > 0 ? Math.round((stat.count / totalQuestions) * 100) : 0;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${stat.category}</td>
+                            <td>${stat.count}</td>
+                            <td>${percentage}%</td>
+                        `;
+                        categoryTable.appendChild(row);
+                    });
+                }
+            } else {
+                throw new Error(data.error || 'Failed to load analytics');
+            }
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+            document.getElementById('categoryStats').innerHTML = 
+                '<tr><td colspan="3" class="text-center text-danger">Error loading analytics</td></tr>';
+        }
+    }
 }
 
 // Initialize the chatbot when the page loads
+let chatBot;
 document.addEventListener('DOMContentLoaded', () => {
-    new BankingChatbot();
+    chatBot = new BankingChatbot();
 });

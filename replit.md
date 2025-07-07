@@ -113,7 +113,33 @@ This is a Flask-based banking chatbot application that provides general banking 
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Updates
+
+### July 07, 2025 - Enhanced Features Added
+- **User Feedback System**: Added 5-star rating and thumbs up/down feedback for bot responses
+- **Question Categorization**: Automatic categorization of questions into 7 banking categories:
+  - Account Services (checking, savings, account management)
+  - Loans & Credit (mortgages, credit cards, personal loans)
+  - Online Banking (digital services, mobile app)
+  - Fees & Charges (banking fees and costs)
+  - Investment Services (portfolio, retirement planning)
+  - Customer Service (general support, locations)
+  - Security & Fraud (account protection, fraud prevention)
+- **Analytics Dashboard**: Real-time statistics showing:
+  - Average feedback rating
+  - Total feedback received
+  - Percentage of helpful responses
+  - Question distribution by category
+- **Enhanced Database**: New tables for categories and message feedback
+- **Improved UI**: Category badges, feedback controls, and analytics modal
+
+### Database Schema Updates
+- **QuestionCategory Table**: Stores banking question categories with keywords
+- **MessageFeedback Table**: Stores user ratings and helpful/unhelpful feedback
+- **Enhanced ChatMessage**: Now includes category relationships
+
 ## Changelog
 
 Changelog:
-- July 07, 2025. Initial setup
+- July 07, 2025. Initial setup and core banking chatbot
+- July 07, 2025. Added feedback system and question categorization
