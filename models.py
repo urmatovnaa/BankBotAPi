@@ -49,7 +49,8 @@ class ChatMessage(db.Model):
     feedback = db.relationship('MessageFeedback',
                                backref='message',
                                lazy=True,
-                               cascade='all, delete-orphan')
+                               cascade='all, delete-orphan',
+                               passive_deletes=True)
 
     def to_dict(self):
         feedback_data = None
@@ -70,7 +71,7 @@ class MessageFeedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Integer,
                            db.ForeignKey('chat_message.id'),
-                           nullable=False)
+                           ondelete='CASCADE')
     rating = db.Column(db.Integer, nullable=False)  # 1-5 star rating
     comment = db.Column(db.Text, nullable=True)
     is_helpful = db.Column(db.Boolean, nullable=True)  # True/False for helpful
