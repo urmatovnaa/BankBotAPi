@@ -57,7 +57,7 @@ class BankingChatbot {
                 
                 // Enable chat interface
                 this.messageInput.disabled = false;
-                this.messageInput.placeholder = "Type your banking question here...";
+                this.messageInput.placeholder = "Банк суроонузду бул жерге жазыңыз...";
                 this.sendBtn.disabled = false;
                 this.clearChatBtn.disabled = false;
                 
@@ -74,7 +74,7 @@ class BankingChatbot {
             
         } catch (error) {
             console.error('Error initializing session:', error);
-            this.showError('Failed to initialize session. Please refresh the page.');
+            this.showError('Сессияны баштоо оңунан чыкпады. Барактыды кайра жүктөңүз.');
             
             // Disable chat interface
             this.messageInput.disabled = true;
@@ -85,18 +85,18 @@ class BankingChatbot {
     
     showWelcomeMessage() {
         const welcomeText = `
-            Welcome to your personal banking assistant! 🏦
+            Жеке банк жардамчыңызга кош келиңиз! 🏦
             
-            I'm here to help you with:
-            • Account services and management
-            • Information about loans and credit
-            • Online banking support
-            • Questions about fees and charges
-            • Investment and retirement planning
-            • General customer service
-            • Security and fraud protection
+            Мен төмөнкү маселелер боюнча жардам бере алам:
+            • Эсеп кызматтары жана башкаруу
+            • Кредиттер жана насыя тууралуу маалымат
+            • Онлайн банкинг колдоосу
+            • Комиссиялар жана алымдар тууралуу суроолор
+            • Инвестиция жана пенсиялык пландоо
+            • Жалпы кардар кызматы
+            • Коопсуздук жана алдамчылыктан коргоо
             
-            How can I assist you today?
+            Бүгүн кандай жардам бере алам?
         `;
         
         this.addMessage(welcomeText, 'bot');
@@ -112,7 +112,7 @@ class BankingChatbot {
         
         if (!message || this.isLoading || !this.sessionInitialized) {
             if (!this.sessionInitialized) {
-                this.showError('Please wait for the session to initialize.');
+                this.showError('Сессиянын башталышын күтүңүз.');
             }
             return;
         }
@@ -152,7 +152,7 @@ class BankingChatbot {
                     // Session expired, reinitialize
                     this.sessionInitialized = false;
                     this.hideTypingIndicator();
-                    this.showError('Session expired. Reinitializing...');
+                    this.showError('Сессиянын мөөнөтү бүттү. Кайра баштолууда...');
                     await this.initializeSession();
                 } else {
                     throw new Error(data.error || 'Failed to send message');
@@ -162,7 +162,7 @@ class BankingChatbot {
         } catch (error) {
             console.error('Error sending message:', error);
             this.hideTypingIndicator();
-            this.showError('Sorry, I encountered an error. Please try again or contact your bank directly.');
+            this.showError('Кечиресиз, ката кетти. Кайра аракет кылыңыз же банкка түздөн-түз кайрылыңыз.');
         } finally {
             this.isLoading = false;
             this.updateSendButton(true);
@@ -185,14 +185,14 @@ class BankingChatbot {
         if (sender === 'user') {
             headerDiv.innerHTML = `
                 <i class="fas fa-user me-2"></i>
-                <strong>You</strong>
+                <strong>Сиз</strong>
                 <small class="text-muted ms-2">${this.formatTimestamp(timestamp)}</small>
             `;
             textDiv.innerHTML = `<p>${this.escapeHtml(text)}</p>`;
         } else {
             headerDiv.innerHTML = `
                 <i class="fas fa-robot me-2"></i>
-                <strong>Banking Assistant</strong>
+                <strong>Банк Жардамчысы</strong>
                 <small class="text-muted ms-2">${this.formatTimestamp(timestamp)}</small>
                 ${category ? `<span class="badge bg-secondary ms-2">${category}</span>` : ''}
             `;
@@ -305,7 +305,7 @@ class BankingChatbot {
         typingDiv.innerHTML = `
             <div class="typing-indicator">
                 <i class="fas fa-robot me-2"></i>
-                <span class="me-2">Banking Assistant is typing</span>
+                <span class="me-2">Банк Жардамчысы жазууда</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -405,7 +405,7 @@ class BankingChatbot {
     }
     
     async clearChat() {
-        if (!confirm('Are you sure you want to clear the chat history?')) {
+        if (!confirm('Маек тарыхын тазалоону каалайсызбы?')) {
             return;
         }
         
@@ -426,15 +426,15 @@ class BankingChatbot {
                     this.chatMessages.appendChild(welcomeMessage);
                 }
                 
-                this.showSuccess('Chat history cleared successfully');
+                this.showSuccess('Маек тарыхы ийгиликтүү тазаланды');
             } else if (response.status === 401) {
-                this.showError('Session expired. Please refresh the page.');
+                this.showError('Сессиянын мөөнөтү бүттү. Барактыды кайра жүктөңүз.');
             } else {
                 throw new Error('Failed to clear chat history');
             }
         } catch (error) {
             console.error('Error clearing chat:', error);
-            this.showError('Failed to clear chat history. Please try again.');
+            this.showError('Маек тарыхын тазалоо оңунан чыкпады. Кайра аракет кылыңыз.');
         }
     }
     
@@ -444,7 +444,7 @@ class BankingChatbot {
     
     formatTimestamp(timestamp) {
         if (!timestamp) {
-            return 'Just now';
+            return 'Азыр эле';
         }
         
         const date = new Date(timestamp);
@@ -453,12 +453,12 @@ class BankingChatbot {
         const diffMins = Math.floor(diffMs / 60000);
         
         if (diffMins < 1) {
-            return 'Just now';
+            return 'Азыр эле';
         } else if (diffMins < 60) {
-            return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            return `${diffMins} мүнөт мурун`;
         } else if (diffMins < 1440) {
             const hours = Math.floor(diffMins / 60);
-            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            return `${hours} саат мурун`;
         } else {
             return date.toLocaleDateString();
         }
@@ -500,13 +500,13 @@ class BankingChatbot {
                     });
                 }
                 
-                this.showSuccess('Thank you for your feedback!');
+                this.showSuccess('Пикириңиз үчүн рахмат!');
             } else {
                 throw new Error(data.error || 'Failed to submit rating');
             }
         } catch (error) {
             console.error('Error submitting rating:', error);
-            this.showError('Failed to submit rating. Please try again.');
+            this.showError('Баа берүү оңунан чыкпады. Кайра аракет кылыңыз.');
         }
     }
     
@@ -539,13 +539,13 @@ class BankingChatbot {
                     clickedButton.classList.add('active');
                 }
                 
-                this.showSuccess('Thank you for your feedback!');
+                this.showSuccess('Пикириңиз үчүн рахмат!');
             } else {
                 throw new Error(data.error || 'Failed to submit feedback');
             }
         } catch (error) {
             console.error('Error submitting feedback:', error);
-            this.showError('Failed to submit feedback. Please try again.');
+            this.showError('Пикир жөнөтүү оңунан чыкпады. Кайра аракет кылыңыз.');
         }
     }
     
