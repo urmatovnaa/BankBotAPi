@@ -12,7 +12,6 @@ class BankingChatbot {
         
         this.initializeEventListeners();
         this.loadChatHistory();
-        this.setupAnalyticsModal();
     }
     
     initializeEventListeners() {
@@ -32,6 +31,9 @@ class BankingChatbot {
         
         // Auto-resize input
         this.messageInput.addEventListener('input', () => this.adjustInputHeight());
+        
+        // Setup analytics modal
+        this.setupAnalyticsModal();
     }
     
     adjustInputHeight() {
