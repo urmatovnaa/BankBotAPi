@@ -9,16 +9,24 @@ from categorization_service import question_categorizer
 @app.route('/')
 def index():
     """Main chat interface"""
-    # Create or get session ID
-    if 'session_id' not in session:
-        session['session_id'] = str(uuid.uuid4())
+    try:
+        # Create or get session ID
+        if 'session_id' not in session:
+            session['session_id'] = str(uuid.uuid4())
+            
+            # Create user record
+            user = User(session_id=session['session_id'])
+            db.session.add(user)
+            db.session.commit()
+            logging.info(f"Created new user with session_id: {session['session_id']}")
+        else:
+            logging.info(f"Existing session: {session['session_id']}")
         
-        # Create user record
-        user = User(session_id=session['session_id'])
-        db.session.add(user)
-        db.session.commit()
-    
-    return render_template('index.html')
+        return render_template('index.html')
+    except Exception as e:
+        logging.error(f"Error in index route: {e}")
+        # Try to continue anyway
+        return render_template('index.html')
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
