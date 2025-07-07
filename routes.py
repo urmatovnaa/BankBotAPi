@@ -5,60 +5,60 @@ from app import app, db
 from models import User, ChatMessage, MessageFeedback, QuestionCategory
 from gemini_service import banking_chatbot
 from categorization_service import question_categorizer
+from auth_utils import require_user, create_user_session, get_current_user, is_session_valid
 
 
 @app.route('/')
 def index():
-    """Main chat interface"""
-    try:
-        # Create or get session ID
-        if 'session_id' not in session:
-            session['session_id'] = str(uuid.uuid4())
-            print("hello")
-            print(session['session_id'])
-            # Create user record
-            user = User(session_id=session['session_id'])
-            db.session.add(user)
-            db.session.commit()
-            logging.info(
-                f"Created new user with session_id: {session['session_id']}")
-        else:
-            logging.info(f"Existing session: {session['session_id']}")
+    """Main chat interface - no longer creates user sessions"""
+    return render_template('index.html')
 
-        return render_template('index.html')
+
+@app.route('/api/init', methods=['POST'])
+def init_session():
+    """
+    Initialize user session and create user if needed.
+    This should be called once on page load from the frontend.
+    """
+    try:
+        # Check if session already exists and is valid
+        if is_session_valid():
+            user = get_current_user()
+            return jsonify({
+                'status': 'existing_session',
+                'session_id': session['session_id'],
+                'user_id': user.id,
+                'created_at': user.created_at.isoformat()
+            }), 200
+        
+        # Create new session and user
+        user = create_user_session()
+        
+        return jsonify({
+            'status': 'session_created',
+            'session_id': session['session_id'],
+            'user_id': user.id,
+            'created_at': user.created_at.isoformat()
+        }), 201
+        
     except Exception as e:
-        logging.error(f"Error in index route: {e}")
-        # Try to continue anyway
-        return render_template('index.html')
+        logging.error(f"Error initializing session: {e}")
+        return jsonify({
+            'error': 'Failed to initialize session',
+            'details': str(e)
+        }), 500
 
 
 @app.route('/api/chat', methods=['POST'])
-def chat():
-    """Handle chat messages"""
+@require_user
+def chat(user):
+    """Handle chat messages - requires valid user session"""
     try:
         data = request.get_json()
         user_message = data.get('message', '').strip()
 
         if not user_message:
             return jsonify({'error': 'Message cannot be empty'}), 400
-
-        # Get user from session
-        session_id = session.get('session_id')
-        if not session_id:
-            # Create a new session and user if missing
-            session_id = str(uuid.uuid4())
-            session['session_id'] = session_id
-            user = User(session_id=session_id)
-            db.session.add(user)
-            db.session.commit()
-            # return jsonify({'error': 'Session not found'}), 400
-
-        user = User.query.filter_by(session_id=session_id).first()
-        if not user:
-            user = User(session_id=session_id)
-            db.session.add(user)
-            db.session.commit()
-            # return jsonify({'error': 'User not found'}), 400
 
         # Get conversation history for context
         recent_messages = ChatMessage.query.filter_by(user_id=user.id)\
@@ -101,17 +101,10 @@ def chat():
 
 
 @app.route('/api/history', methods=['GET'])
-def get_chat_history():
+@require_user
+def get_chat_history(user):
     """Get chat history for the current session"""
     try:
-        session_id = session.get('session_id')
-        if not session_id:
-            return jsonify({'messages': []})
-
-        user = User.query.filter_by(session_id=session_id).first()
-        if not user:
-            return jsonify({'messages': []})
-
         # Get all messages for this user
         messages = ChatMessage.query.filter_by(user_id=user.id)\
             .order_by(ChatMessage.timestamp.asc()).all()
@@ -125,18 +118,13 @@ def get_chat_history():
 
 
 @app.route('/api/clear', methods=['POST'])
-def clear_chat():
+@require_user
+def clear_chat(user):
     """Clear chat history for the current session"""
     try:
-        session_id = session.get('session_id')
-        if not session_id:
-            return jsonify({'success': True})
-
-        user = User.query.filter_by(session_id=session_id).first()
-        if user:
-            # Delete all messages for this user
-            ChatMessage.query.filter_by(user_id=user.id).delete()
-            db.session.commit()
+        # Delete all messages for this user
+        ChatMessage.query.filter_by(user_id=user.id).delete()
+        db.session.commit()
 
         return jsonify({'success': True})
 
@@ -147,7 +135,8 @@ def clear_chat():
 
 
 @app.route('/api/feedback', methods=['POST'])
-def submit_feedback():
+@require_user
+def submit_feedback(user):
     """Submit feedback for a message"""
     try:
         data = request.get_json()
@@ -161,16 +150,6 @@ def submit_feedback():
                             'Message ID and rating are required'}), 400
 
         # Verify the message exists and belongs to the current user
-        session_id = session.get('session_id')
-        if not session_id:
-            return jsonify({'error': 'Session not found'}), 400
-
-        user = User.query.filter_by(session_id=session_id).first()
-        if not user:
-            logging.error(f"User not found for session_id:{session_id}")
-
-            return jsonify({'error': 'User not found'}), 400
-
         message = ChatMessage.query.filter_by(id=message_id,
                                               user_id=user.id).first()
         if not message:

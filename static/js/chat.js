@@ -9,9 +9,10 @@ class BankingChatbot {
         
         this.isLoading = false;
         this.messageQueue = [];
+        this.sessionInitialized = false;
         
         this.initializeEventListeners();
-        this.loadChatHistory();
+        this.initializeSession();
     }
     
     initializeEventListeners() {
@@ -36,6 +37,71 @@ class BankingChatbot {
         this.setupAnalyticsModal();
     }
     
+    async initializeSession() {
+        try {
+            console.log('Initializing session...');
+            
+            const response = await fetch('/api/init', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                console.log('Session initialized:', data);
+                this.sessionInitialized = true;
+                
+                // Enable chat interface
+                this.messageInput.disabled = false;
+                this.messageInput.placeholder = "Type your banking question here...";
+                this.sendBtn.disabled = false;
+                this.clearChatBtn.disabled = false;
+                
+                // Load chat history after session is initialized
+                this.loadChatHistory();
+                
+                // Show welcome message for new sessions
+                if (data.status === 'session_created') {
+                    this.showWelcomeMessage();
+                }
+            } else {
+                throw new Error(data.error || 'Failed to initialize session');
+            }
+            
+        } catch (error) {
+            console.error('Error initializing session:', error);
+            this.showError('Failed to initialize session. Please refresh the page.');
+            
+            // Disable chat interface
+            this.messageInput.disabled = true;
+            this.sendBtn.disabled = true;
+            this.clearChatBtn.disabled = true;
+        }
+    }
+    
+    showWelcomeMessage() {
+        const welcomeText = `
+            Welcome to your personal banking assistant! 🏦
+            
+            I'm here to help you with:
+            • Account services and management
+            • Information about loans and credit
+            • Online banking support
+            • Questions about fees and charges
+            • Investment and retirement planning
+            • General customer service
+            • Security and fraud protection
+            
+            How can I assist you today?
+        `;
+        
+        this.addMessage(welcomeText, 'bot');
+    }
+    
     adjustInputHeight() {
         this.messageInput.style.height = 'auto';
         this.messageInput.style.height = this.messageInput.scrollHeight + 'px';
@@ -44,7 +110,10 @@ class BankingChatbot {
     async sendMessage() {
         const message = this.messageInput.value.trim();
         
-        if (!message || this.isLoading) {
+        if (!message || this.isLoading || !this.sessionInitialized) {
+            if (!this.sessionInitialized) {
+                this.showError('Please wait for the session to initialize.');
+            }
             return;
         }
         
@@ -68,6 +137,7 @@ class BankingChatbot {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ message: message })
             });
             
@@ -78,7 +148,15 @@ class BankingChatbot {
                 this.hideTypingIndicator();
                 this.addMessage(data.response, 'bot', data.timestamp, data.message_id, data.category);
             } else {
-                throw new Error(data.error || 'Failed to send message');
+                if (response.status === 401) {
+                    // Session expired, reinitialize
+                    this.sessionInitialized = false;
+                    this.hideTypingIndicator();
+                    this.showError('Session expired. Reinitializing...');
+                    await this.initializeSession();
+                } else {
+                    throw new Error(data.error || 'Failed to send message');
+                }
             }
             
         } catch (error) {
@@ -294,22 +372,32 @@ class BankingChatbot {
     
     async loadChatHistory() {
         try {
-            const response = await fetch('/api/history');
-            const data = await response.json();
+            const response = await fetch('/api/history', {
+                credentials: 'include'
+            });
             
-            if (response.ok && data.messages) {
-                // Clear existing messages except welcome message
-                const welcomeMessage = this.chatMessages.querySelector('.message');
-                this.chatMessages.innerHTML = '';
-                if (welcomeMessage) {
-                    this.chatMessages.appendChild(welcomeMessage);
-                }
+            if (response.ok) {
+                const data = await response.json();
                 
-                // Add historical messages
-                data.messages.forEach(msg => {
-                    this.addMessage(msg.message, 'user', msg.timestamp);
-                    this.addMessage(msg.response, 'bot', msg.timestamp, msg.id, msg.category, msg.feedback);
-                });
+                if (data.messages) {
+                    // Clear existing messages except welcome message
+                    const welcomeMessage = this.chatMessages.querySelector('.message');
+                    this.chatMessages.innerHTML = '';
+                    if (welcomeMessage) {
+                        this.chatMessages.appendChild(welcomeMessage);
+                    }
+                    
+                    // Add historical messages
+                    data.messages.forEach(msg => {
+                        this.addMessage(msg.message, 'user', msg.timestamp);
+                        this.addMessage(msg.response, 'bot', msg.timestamp, msg.id, msg.category, msg.feedback);
+                    });
+                }
+            } else if (response.status === 401) {
+                // Session not initialized, this is expected on first load
+                console.log('Session not initialized, will be handled by initializeSession');
+            } else {
+                throw new Error('Failed to load chat history');
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
@@ -326,7 +414,8 @@ class BankingChatbot {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                credentials: 'include'
             });
             
             if (response.ok) {
@@ -338,6 +427,8 @@ class BankingChatbot {
                 }
                 
                 this.showSuccess('Chat history cleared successfully');
+            } else if (response.status === 401) {
+                this.showError('Session expired. Please refresh the page.');
             } else {
                 throw new Error('Failed to clear chat history');
             }
@@ -386,6 +477,7 @@ class BankingChatbot {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ 
                     message_id: messageId, 
                     rating: rating 
@@ -425,6 +517,7 @@ class BankingChatbot {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ 
                     message_id: messageId, 
                     is_helpful: isHelpful,
@@ -468,7 +561,9 @@ class BankingChatbot {
     
     async loadAnalytics() {
         try {
-            const response = await fetch('/api/analytics');
+            const response = await fetch('/api/analytics', {
+                credentials: 'include'
+            });
             const data = await response.json();
             
             if (response.ok) {
