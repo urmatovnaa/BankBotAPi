@@ -569,8 +569,8 @@ class BankingChatbot {
             if (response.ok) {
                 // Update feedback statistics
                 const feedbackStats = data.feedback_stats;
-                document.getElementById('avgRating').textContent = feedbackStats.average_rating.toFixed(1);
-                document.getElementById('totalFeedback').textContent = feedbackStats.total_feedback;
+                document.getElementById('avgRating').textContent = feedbackStats.average_rating ? feedbackStats.average_rating.toFixed(1) : '0.0';
+                document.getElementById('totalFeedback').textContent = feedbackStats.total_feedback || 0;
                 
                 const helpfulPercentage = feedbackStats.total_feedback > 0 
                     ? Math.round((feedbackStats.helpful_count / feedbackStats.total_feedback) * 100)
@@ -584,15 +584,15 @@ class BankingChatbot {
                 const categoryTable = document.getElementById('categoryStats');
                 categoryTable.innerHTML = '';
                 
-                if (categoryStats.length === 0) {
+                if (!categoryStats || categoryStats.length === 0) {
                     categoryTable.innerHTML = '<tr><td colspan="3" class="text-center">No data available yet</td></tr>';
                 } else {
                     categoryStats.forEach(stat => {
                         const percentage = totalQuestions > 0 ? Math.round((stat.count / totalQuestions) * 100) : 0;
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${stat.category}</td>
-                            <td>${stat.count}</td>
+                            <td>${stat.category || 'Unknown'}</td>
+                            <td>${stat.count || 0}</td>
                             <td>${percentage}%</td>
                         `;
                         categoryTable.appendChild(row);
@@ -603,6 +603,13 @@ class BankingChatbot {
             }
         } catch (error) {
             console.error('Error loading analytics:', error);
+            
+            // Set default values for feedback stats
+            document.getElementById('avgRating').textContent = '0.0';
+            document.getElementById('totalFeedback').textContent = '0';
+            document.getElementById('helpfulPercentage').textContent = '0';
+            
+            // Show error message in category table
             document.getElementById('categoryStats').innerHTML = 
                 '<tr><td colspan="3" class="text-center text-danger">Error loading analytics</td></tr>';
         }

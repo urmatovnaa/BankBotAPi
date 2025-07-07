@@ -203,24 +203,34 @@ def get_analytics():
         category_stats = question_categorizer.get_category_stats()
 
         # Get feedback statistics
-        from sqlalchemy import func
+        from sqlalchemy import func, case
         feedback_stats = db.session.query(
             func.avg(MessageFeedback.rating).label('avg_rating'),
             func.count(MessageFeedback.id).label('total_feedback'),
             func.sum(
-                func.case([(MessageFeedback.is_helpful == True, 1)],
-                          else_=0)).label('helpful_count')).first()
+                case(
+                    (MessageFeedback.is_helpful == True, 1),
+                    else_=0
+                )
+            ).label('helpful_count')
+        ).first()
+
+        # Handle case when no feedback exists
+        if feedback_stats and feedback_stats.total_feedback > 0:
+            average_rating = float(feedback_stats.avg_rating) if feedback_stats.avg_rating else 0
+            total_feedback = feedback_stats.total_feedback
+            helpful_count = feedback_stats.helpful_count or 0
+        else:
+            average_rating = 0
+            total_feedback = 0
+            helpful_count = 0
 
         return jsonify({
             'category_stats': category_stats,
             'feedback_stats': {
-                'average_rating':
-                float(feedback_stats.avg_rating)
-                if feedback_stats.avg_rating else 0,
-                'total_feedback':
-                feedback_stats.total_feedback,
-                'helpful_count':
-                feedback_stats.helpful_count or 0
+                'average_rating': average_rating,
+                'total_feedback': total_feedback,
+                'helpful_count': helpful_count
             }
         })
 
