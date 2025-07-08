@@ -42,18 +42,30 @@ class Account(db.Model):
     balance = db.Column(db.Numeric(15, 2), default=0.0, nullable=False)
     opened_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Связь с транзакциями
-    transactions = db.relationship('Transaction', 
-                                   backref='account', 
-                                   lazy=True, 
-                                   cascade='all, delete-orphan')
+    # Исходящие транзакции (отправленные)
+    outgoing_transactions = db.relationship(
+        'Transaction',
+        backref='from_account',
+        lazy=True,
+        cascade='all, delete-orphan',
+        foreign_keys='Transaction.account_from_id'
+    )
+    # Входящие транзакции (полученные)
+    incoming_transactions = db.relationship(
+        'Transaction',
+        backref='to_account',
+        lazy=True,
+        cascade='all, delete-orphan',
+        foreign_keys='Transaction.account_to_id'
+    )
 
 
 class Transaction(db.Model):
     __tablename__ = 'transaction'
 
     id = db.Column(db.Integer, primary_key=True)
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=False)
+    account_from_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
+    account_to_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
     type = db.Column(db.String(50), nullable=False)  # deposit, withdrawal, transfer
     amount = db.Column(db.Numeric(15, 2), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)

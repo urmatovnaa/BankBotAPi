@@ -88,7 +88,8 @@ def chat(user):
             for msg in reversed(recent_messages)
         ]
 
-        ai_response = banking_chatbot.get_response(user_message, conversation_history)
+        # Передаем user в get_response
+        ai_response = banking_chatbot.get_response(user_message, conversation_history, user=user)
         category = question_categorizer.categorize_question(user_message)
 
         chat_message = ChatMessage(
