@@ -1,21 +1,68 @@
-from app import db
+from database import db
 from datetime import datetime
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=True)          
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)  # хэш пароля
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, 
+                           default=datetime.utcnow, 
+                           onupdate=datetime.utcnow)
 
     # Relationship to chat messages
     messages = db.relationship('ChatMessage',
                                backref='user',
                                lazy=True,
                                cascade='all, delete-orphan')
+    accounts = db.relationship('Account', 
+                               backref='user', 
+                               lazy=True,         
+                               cascade='all, delete-orphan')
 
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
+class Account(db.Model):
+    __tablename__ = 'account'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    account_type = db.Column(db.String(50), nullable=False)  # checking, savings и т.п.
+    balance = db.Column(db.Numeric(15, 2), default=0.0, nullable=False)
+    opened_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Связь с транзакциями
+    transactions = db.relationship('Transaction', 
+                                   backref='account', 
+                                   lazy=True, 
+                                   cascade='all, delete-orphan')
+
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+
+    id = db.Column(db.Integer, primary_key=True)
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=False)
+    type = db.Column(db.String(50), nullable=False)  # deposit, withdrawal, transfer
+    amount = db.Column(db.Numeric(15, 2), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    description = db.Column(db.Text, nullable=True)
+    
 
 class QuestionCategory(db.Model):
+    __tablename__ = 'question_category'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
@@ -36,6 +83,8 @@ class QuestionCategory(db.Model):
 
 
 class ChatMessage(db.Model):
+    __tablename__ = 'chat_message'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     category_id = db.Column(db.Integer,
@@ -68,10 +117,11 @@ class ChatMessage(db.Model):
 
 
 class MessageFeedback(db.Model):
+    __tablename__ = 'message_feedback'
+
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Integer,
-                           db.ForeignKey('chat_message.id'),
-                           ondelete='CASCADE')
+    message_id = db.Column(
+        db.Integer, db.ForeignKey('chat_message.id', ondelete='CASCADE'))
     rating = db.Column(db.Integer, nullable=False)  # 1-5 star rating
     comment = db.Column(db.Text, nullable=True)
     is_helpful = db.Column(db.Boolean, nullable=True)  # True/False for helpful

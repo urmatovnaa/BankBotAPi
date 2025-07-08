@@ -1,17 +1,14 @@
 import os
 import logging
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+from database import db
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
+os.environ["GEMINI_API_KEY"] = "AIzaSyARf0pSvDnik_m6MfeOQs1tr9FNC5pH4bI"
 
 # Create the app
 app = Flask(__name__)

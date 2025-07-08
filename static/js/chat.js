@@ -6,13 +6,28 @@ class BankingChatbot {
         this.sendBtn = document.getElementById('sendBtn');
         this.clearChatBtn = document.getElementById('clearChatBtn');
         this.loadingSpinner = document.getElementById('loadingSpinner');
-        
         this.isLoading = false;
         this.messageQueue = [];
-        this.sessionInitialized = false;
-        
         this.initializeEventListeners();
-        this.initializeSession();
+        this.enableChatIfAuthorized();
+    }
+
+    enableChatIfAuthorized() {
+        fetch('/api/history', {credentials: 'include'})
+            .then(r => {
+                if (r.ok) {
+                    this.messageInput.disabled = false;
+                    this.sendBtn.disabled = false;
+                    this.clearChatBtn.disabled = false;
+                    this.messageInput.placeholder = "Банк суроонузду бул жерге жазыңыз...";
+                    this.loadChatHistory();
+                } else {
+                    this.messageInput.disabled = true;
+                    this.sendBtn.disabled = true;
+                    this.clearChatBtn.disabled = true;
+                    this.messageInput.placeholder = "Кирүү же катталуу талап кылынат";
+                }
+            });
     }
     
     initializeEventListeners() {
@@ -35,71 +50,122 @@ class BankingChatbot {
         
         // Setup analytics modal
         this.setupAnalyticsModal();
-    }
-    
-    async initializeSession() {
-        try {
-            console.log('Initializing session...');
-            
-            const response = await fetch('/api/init', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include'
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                console.log('Session initialized:', data);
-                this.sessionInitialized = true;
-                
-                // Enable chat interface
-                this.messageInput.disabled = false;
-                this.messageInput.placeholder = "Банк суроонузду бул жерге жазыңыз...";
-                this.sendBtn.disabled = false;
-                this.clearChatBtn.disabled = false;
-                
-                // Load chat history after session is initialized
-                this.loadChatHistory();
-                
-                // Show welcome message for new sessions
-                if (data.status === 'session_created') {
-                    this.showWelcomeMessage();
-                }
-            } else {
-                throw new Error(data.error || 'Failed to initialize session');
-            }
-            
-        } catch (error) {
-            console.error('Error initializing session:', error);
-            this.showError('Сессияны баштоо оңунан чыкпады. Барактыды кайра жүктөңүз.');
-            
-            // Disable chat interface
-            this.messageInput.disabled = true;
-            this.sendBtn.disabled = true;
-            this.clearChatBtn.disabled = true;
-        }
-    }
-    
-    showWelcomeMessage() {
-        const welcomeText = `
-            Жеке банк жардамчыңызга кош келиңиз! 🏦
-            
-            Мен төмөнкү маселелер боюнча жардам бере алам:
-            • Эсеп кызматтары жана башкаруу
-            • Кредиттер жана насыя тууралуу маалымат
-            • Онлайн банкинг колдоосу
-            • Комиссиялар жана алымдар тууралуу суроолор
-            • Инвестиция жана пенсиялык пландоо
-            • Жалпы кардар кызматы
-            • Коопсуздук жана алдамчылыктан коргоо
-            
-            Бүгүн кандай жардам бере алам?
-        `;
         
-        this.addMessage(welcomeText, 'bot');
+        // Add event listeners for login and register buttons
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            });
+        }
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => {
+                const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
+            });
+        }
+
+        // Handle login form submit
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const errorDiv = document.getElementById('loginError');
+                errorDiv.style.display = 'none';
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                        location.reload();
+                    } else {
+                        errorDiv.textContent = data.error || 'Кирүү катасы';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (err) {
+                    errorDiv.textContent = 'Сервер катасы';
+                    errorDiv.style.display = 'block';
+                }
+            });
+        }
+
+        // Handle register form submit
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const errorDiv = document.getElementById('registerError');
+                errorDiv.style.display = 'none';
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                        alert('Катталуу ийгиликтүү! Эми кире аласыз.');
+                    } else {
+                        errorDiv.textContent = data.error || 'Катталуу катасы';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (err) {
+                    errorDiv.textContent = 'Сервер катасы';
+                    errorDiv.style.display = 'block';
+                }
+            });
+        }
+
+        // Показывать/скрывать кнопки в зависимости от статуса
+        function updateAuthButtons() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            fetch('/api/history', {credentials: 'include'})
+                .then(r => {
+                    if (r.ok) {
+                        logoutBtn.classList.remove('d-none');
+                        loginBtn.classList.add('d-none');
+                        registerBtn.classList.add('d-none');
+                    } else {
+                        logoutBtn.classList.add('d-none');
+                        loginBtn.classList.remove('d-none');
+                        registerBtn.classList.remove('d-none');
+                    }
+                });
+        }
+        updateAuthButtons();
+
+        // Обработчик выхода
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        location.reload();
+                    }
+                } catch (err) {
+                    alert('Logout error');
+                }
+            });
+        }
     }
     
     adjustInputHeight() {
@@ -109,29 +175,16 @@ class BankingChatbot {
     
     async sendMessage() {
         const message = this.messageInput.value.trim();
-        
-        if (!message || this.isLoading || !this.sessionInitialized) {
-            if (!this.sessionInitialized) {
-                this.showError('Сессиянын башталышын күтүңүз.');
-            }
+        if (!message || this.isLoading || this.messageInput.disabled) {
             return;
         }
-        
-        // Clear input
         this.messageInput.value = '';
         this.messageInput.style.height = 'auto';
-        
-        // Add user message to chat
         this.addMessage(message, 'user');
-        
-        // Show typing indicator
         this.showTypingIndicator();
-        
         try {
             this.isLoading = true;
             this.updateSendButton(false);
-            
-            // Send message to backend
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
@@ -140,25 +193,18 @@ class BankingChatbot {
                 credentials: 'include',
                 body: JSON.stringify({ message: message })
             });
-            
             const data = await response.json();
-            
             if (response.ok) {
-                // Remove typing indicator and add bot response
                 this.hideTypingIndicator();
                 this.addMessage(data.response, 'bot', data.timestamp, data.message_id, data.category);
             } else {
                 if (response.status === 401) {
-                    // Session expired, reinitialize
-                    this.sessionInitialized = false;
                     this.hideTypingIndicator();
-                    this.showError('Сессиянын мөөнөтү бүттү. Кайра баштолууда...');
-                    await this.initializeSession();
+                    this.showError('Кирүү же катталуу талап кылынат.');
                 } else {
                     throw new Error(data.error || 'Failed to send message');
                 }
             }
-            
         } catch (error) {
             console.error('Error sending message:', error);
             this.hideTypingIndicator();
@@ -375,29 +421,13 @@ class BankingChatbot {
             const response = await fetch('/api/history', {
                 credentials: 'include'
             });
-            
             if (response.ok) {
                 const data = await response.json();
-                
-                if (data.messages) {
-                    // Clear existing messages except welcome message
-                    const welcomeMessage = this.chatMessages.querySelector('.message');
-                    this.chatMessages.innerHTML = '';
-                    if (welcomeMessage) {
-                        this.chatMessages.appendChild(welcomeMessage);
-                    }
-                    
-                    // Add historical messages
-                    data.messages.forEach(msg => {
-                        this.addMessage(msg.message, 'user', msg.timestamp);
-                        this.addMessage(msg.response, 'bot', msg.timestamp, msg.id, msg.category, msg.feedback);
-                    });
-                }
-            } else if (response.status === 401) {
-                // Session not initialized, this is expected on first load
-                console.log('Session not initialized, will be handled by initializeSession');
-            } else {
-                throw new Error('Failed to load chat history');
+                this.chatMessages.innerHTML = '';
+                data.messages.forEach(msg => {
+                    this.addMessage(msg.message, 'user', msg.timestamp);
+                    this.addMessage(msg.response, 'bot', msg.timestamp, msg.id, msg.category, msg.feedback);
+                });
             }
         } catch (error) {
             console.error('Error loading chat history:', error);

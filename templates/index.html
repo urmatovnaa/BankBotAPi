@@ -17,6 +17,14 @@
                 Банк Жардамчысы
             </a>
             <div class="d-flex">
+                <button class="btn btn-outline-success btn-sm me-2" id="loginBtn">
+                    <i class="fas fa-sign-in-alt me-1"></i>
+                    Кирүү
+                </button>
+                <button class="btn btn-outline-warning btn-sm me-2" id="registerBtn">
+                    <i class="fas fa-user-plus me-1"></i>
+                    Катталуу
+                </button>
                 <button class="btn btn-outline-secondary btn-sm me-2" id="clearChatBtn" disabled>
                     <i class="fas fa-broom me-1"></i>
                     Маекти Тазалоо
@@ -28,6 +36,10 @@
                 <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal">
                     <i class="fas fa-info-circle me-1"></i>
                     Маалымат
+                </button>
+                <button class="btn btn-outline-danger btn-sm me-2 d-none" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt me-1"></i>
+                    Чыгуу
                 </button>
             </div>
         </div>
@@ -180,6 +192,57 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Жабуу</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Кирүү</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Сыр сөз</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <div id="loginError" class="text-danger mb-2" style="display:none;"></div>
+                        <button type="submit" class="btn btn-success w-100">Кирүү</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Катталуу</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Сыр сөз</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <div id="registerError" class="text-danger mb-2" style="display:none;"></div>
+                        <button type="submit" class="btn btn-warning w-100">Катталуу</button>
+                    </form>
                 </div>
             </div>
         </div>
