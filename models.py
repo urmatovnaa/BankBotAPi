@@ -10,7 +10,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=True)          
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)  # хэш пароля
+    password_hash = db.Column(db.String(255), nullable=False)  # хэш пароля
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, 
                            default=datetime.utcnow, 
@@ -68,7 +68,7 @@ class Transaction(db.Model):
     account_to_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
     type = db.Column(db.String(50), nullable=False)  # deposit, withdrawal, transfer
     amount = db.Column(db.Numeric(15, 2), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     description = db.Column(db.Text, nullable=True)
     
 

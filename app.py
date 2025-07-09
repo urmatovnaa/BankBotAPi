@@ -1,14 +1,20 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import logging
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+
 from database import db
+
+
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-os.environ["GEMINI_API_KEY"] = "AIzaSyARf0pSvDnik_m6MfeOQs1tr9FNC5pH4bI"
+os.environ["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY", "")
 
 # Create the app
 app = Flask(__name__)
