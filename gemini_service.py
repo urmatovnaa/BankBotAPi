@@ -9,7 +9,7 @@ from gemini_function_schemas import gemini_function_schemas
 
 # Initialize Gemini model with function calling tools
 model = genai.GenerativeModel(
-    "gemini-2.5-flash",
+    "gemini-2.0-flash",
     tools=[{"function_declarations": list(gemini_function_schemas.values())}]
 )
 
@@ -18,29 +18,11 @@ pending_transfers = {}
 
 class BankingChatbot:
     def __init__(self):
-        self.system_prompt = """
-        Сиз жардамчы жана кесиптүү банк кызматчысысыз. Сиздин ролуңуз:
-        
-        1. Банк кызматтары тууралуу жалпы маалымат берүү (текущий эсептер, жинак эсептери, кредиттер, кредиттик карталар ж.б.)
-        2. Кардарларга банк процедураларын жана процесстерин түшүнүүгө жардам берүү
-        3. Жалпы банк суроолору жана тынчсызданууларында жардам берүү
-        4. Каржы сабаттуулугу боюнча маалымат берүү
-        5. Кардарларды тиешелүү ресурстарга багыттоо же эсеп менен байланышкан маселелер үчүн банкка түздөн-түз кайрылууну сунуштоо
-        6. Жеке суроолорго жооп берүү: колдонуучунун банк эсебиндеги баланс, эсептердин тизмеси, акыркы транзакциялар, кимге жана канча акча которгон, жана акча которуу ассистенти катары иштөө (мисалы, "100 сомду Бакытка котор" ж.б.).
-        
-        МААНИЛҮҮ КӨРСӨТМӨЛӨР:
-        - Эч качан эсеп номурлары, жеке номурлар, сыр сөздөр же PIN-коддор сыяктуу купуя маалыматты сурабаңыз же иштетпеңиз
-        - Эсеп менен байланышкан маселелер үчүн банкка түздөн-түз кайрылууну дайыма эскертиңиз
-        - Жалпы жана жеке банк темалары боюнча так, пайдалуу маалымат бериңиз
-        - Кесиптүү, сылык жана боордоштук менен мамиле кылыңыз
-        - Эгер бир нерсеге ишенбесеңиз, муну мойнуна алыңыз жана банкка кайрылууну сунуштаңыз
-        - Өзгөчө каржы кеңештерин бербеңиз - жалпы маалымат гана
-        - Жоопторду кыска, бирок маалымдуу кылыңыз
-        
-        Эсиңизде болсун: Сиз жалпы жана жеке банк суроолору боюнча жардам берүү жана маалымат берүү үчүн бул жердесиз, эсептерди көрүү же өзгөртүү үчүн эмес.
-        
-        МААНИЛҮҮ: Бардык жоопторуңузду кыргыз тилинде жазыңыз.
-        """
+        # Short, clear system prompt for Gemini 2.0 Flash
+        self.system_prompt = (
+            "Сен банк ассистентисиң. Эгер колдонуучу сураса, дайыма function calling колдон. "
+            "Мисалы: баланс, транзакциялар, акча которуу. Жоопту кыргызча бер."
+        )
     
     def get_personal_response(self, user, user_message):
         # Теперь персональные вопросы обрабатываются только через function calling Gemini
@@ -57,31 +39,30 @@ class BankingChatbot:
             The AI's response (Kyrgyz)
         """
         try:
-            # Build the conversation context
-            conversation_context = ""
-            if conversation_history:
-                for msg in conversation_history[-5:]:  # Keep last 5 messages for context
-                    conversation_context += f"User: {msg['message']}\nAssistant: {msg['response']}\n\n"
-            # Construct the full prompt
-            full_prompt = f"{self.system_prompt}\n\n"
-            if conversation_context:
-                full_prompt += f"Previous conversation:\n{conversation_context}"
-            full_prompt += f"Current user message: {user_message}\n\nPlease provide a helpful response:"
+            messages = []
+            # Use only the last 2 user/model pairs for context
+            history = conversation_history[-2:] if conversation_history else []
+            for i, msg in enumerate(history):
+                if i == 0:
+                    # Prepend system prompt to the first user message
+                    messages.append({"role": "user", "parts": [self.system_prompt + '\n' + msg['message']]})
+                else:
+                    messages.append({"role": "user", "parts": [msg['message']]})
+                messages.append({"role": "model", "parts": [msg['response']]})
+            # Add current user message
+            messages.append({"role": "user", "parts": [user_message]})
 
             response = model.generate_content(
-                [full_prompt],
+                messages,
                 generation_config={
                     "max_output_tokens": 1000,
                     "temperature": 0.7,
                 }
             )
 
-            # Log the full Gemini response for debugging
             logging.debug(f"Gemini raw response: {response}")
 
-            # Safe handling of function_call and text
-            # Gemini SDK may return function_call in different places
-            # Check candidates, parts, text
+            # First, look for a function call in any part
             if hasattr(response, 'candidates'):
                 for cand in response.candidates:
                     if hasattr(cand, 'content') and hasattr(cand.content, 'parts'):
@@ -89,16 +70,13 @@ class BankingChatbot:
                             if hasattr(part, 'function_call') and part.function_call:
                                 logging.debug(f"Function call part: {part.function_call}")
                                 return self.handle_gemini_function_call(user, part.function_call)
-                            if hasattr(part, 'text') and part.text:
-                                return part.text.strip()
-            # Fallback: try to find any text part in candidates
+            # If no function call, then look for text
             if hasattr(response, 'candidates'):
                 for cand in response.candidates:
                     if hasattr(cand, 'content') and hasattr(cand.content, 'parts'):
                         for part in cand.content.parts:
                             if hasattr(part, 'text') and part.text:
                                 return part.text.strip()
-            # If no text part found, return a default error message
             logging.error(f"No valid response from Gemini: {response}")
             return "Кечиресиз, азыр жооп берүүдө кыйынчылык жаралууда. Кайра аракет кылыңыз же банкка түздөн-түз кайрылыңыз."
         except Exception as e:
@@ -128,6 +106,7 @@ class BankingChatbot:
                 params = dict(params.items())
             logging.debug(f"Function name: {name}, params: {params}")
             if name == 'get_balance':
+                print("get_balance")
                 _, msg = get_balance(user)
                 return msg
             elif name == 'get_transactions':
