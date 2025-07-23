@@ -3,9 +3,13 @@ from functools import wraps
 from flask import render_template, request, jsonify, session
 from app import app, db
 from models import User, ChatMessage, MessageFeedback, QuestionCategory
-from gemini_service import banking_chatbot
+# from gemini_service import banking_chatbot
+from aitilbot import AitilBankingChatbot
 from categorization_service import question_categorizer
 
+import asyncio
+
+banking_chatbot = AitilBankingChatbot()
 
 def login_required(f):
     @wraps(f)
@@ -23,6 +27,7 @@ def login_required(f):
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
+    name = data.get('name', '').strip()
     email = data.get('email', '').lower()
     password = data.get('password', '')
 
@@ -32,7 +37,7 @@ def register():
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'User already exists'}), 400
 
-    user = User(email=email)
+    user = User(name=name, email=email)
     user.set_password(password)
 
     db.session.add(user)
@@ -89,7 +94,9 @@ def chat(user):
         ]
 
         # Передаем user в get_response
-        ai_response = banking_chatbot.get_response(user_message, conversation_history, user=user)
+        # ai_response = banking_chatbot.get_response(user_message, conversation_history, user=user)
+        ai_response = asyncio.run(banking_chatbot.get_response(user_message, conversation_history, user=user))
+        # ai_response = asyncio.run(AitilBankingChatbot.get_response(user_message, conversation_history, user=user))
         category = question_categorizer.categorize_question(user_message)
 
         chat_message = ChatMessage(
@@ -105,7 +112,8 @@ def chat(user):
             'response': ai_response,
             'message_id': chat_message.id,
             'timestamp': chat_message.timestamp.isoformat(),
-            'category': category.name if category else None
+            'category': category.name if category else None,
+            'user_name': user.name if user.name else None
         })
 
     except Exception as e:
@@ -118,10 +126,25 @@ def chat(user):
 def get_chat_history(user):
     try:
         messages = ChatMessage.query.filter_by(user_id=user.id).order_by(ChatMessage.timestamp.asc()).all()
-        return jsonify({'messages': [msg.to_dict() for msg in messages]})
+        return jsonify({
+            'messages': [msg.to_dict() for msg in messages],
+            'user_name': user.name if user.name else None
+        })
     except Exception as e:
         logging.error(f"Error getting chat history: {e}")
         return jsonify({'error': 'An error occurred getting chat history'}), 500
+
+@app.route('/api/user', methods=['GET'])
+@login_required
+def get_user_info(user):
+    try:
+        return jsonify({
+            'user_name': user.name if user.name else None,
+            'email': user.email
+        })
+    except Exception as e:
+        logging.error(f"Error getting user info: {e}")
+        return jsonify({'error': 'An error occurred getting user info'}), 500
 
 
 @app.route('/api/clear', methods=['POST'])

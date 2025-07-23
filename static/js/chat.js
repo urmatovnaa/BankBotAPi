@@ -8,6 +8,7 @@ class BankingChatbot {
         this.loadingSpinner = document.getElementById('loadingSpinner');
         this.isLoading = false;
         this.messageQueue = [];
+        this.userName = null;
         this.initializeEventListeners();
         this.enableChatIfAuthorized();
     }
@@ -16,24 +17,35 @@ class BankingChatbot {
         fetch('/api/history', {credentials: 'include'})
             .then(r => {
                 if (r.ok) {
-                    this.messageInput.disabled = false;
-                    this.sendBtn.disabled = false;
-                    this.clearChatBtn.disabled = false;
-                    this.messageInput.placeholder = "Банк суроонузду бул жерге жазыңыз...";
-                    this.showWelcomeMessage();
-                    this.loadChatHistory();
+                    return r.json();
                 } else {
-                    this.messageInput.disabled = true;
-                    this.sendBtn.disabled = true;
-                    this.clearChatBtn.disabled = true;
-                    this.messageInput.placeholder = "Кирүү же катталуу талап кылынат";
+                    throw new Error('Not authorized');
                 }
+            })
+            .then(data => {
+                this.messageInput.disabled = false;
+                this.sendBtn.disabled = false;
+                this.clearChatBtn.disabled = false;
+                this.messageInput.placeholder = "Банк суроонузду бул жерге жазыңыз...";
+                this.userName = data.user_name;
+                this.showWelcomeMessage();
+                this.loadChatHistory();
+                
+                // Update auth buttons and user name display
+                this.updateAuthButtons();
+            })
+            .catch(error => {
+                this.messageInput.disabled = true;
+                this.sendBtn.disabled = true;
+                this.clearChatBtn.disabled = true;
+                this.messageInput.placeholder = "Кирүү же катталуу талап кылынат";
             });
     }
 
     showWelcomeMessage() {
+        const userName = this.userName || 'колдонуучу';
         const welcomeText = `\
-Банк Жардамчысына кош келиңиз! 👋\n\nМен сизге жалпы банк суроолору, биздин кызматтар жана жеке банк эсебиңиз тууралуу маалымат бере алам.\n\nМен төмөнкүлөр боюнча жардам бере алам:\n• Эсептериңиздин тизмеси жана балансы\n• Акыркы транзакцияларыңыз\n• Кимге жана канча акча которгонсуз\n• Банк кызматтары жана процедуралары\n• Каржы сабаттуулугу жана коопсуздук\n• Акча которуу ассистенти катары иштейм (мисалы, \"100 сомду Бакытка котор\" ж.б.)\n\nЖеке суроолорду да бере аласыз: мисалы, \"Канча акча бар?\", \"Акыркы транзакцияларымды көрсөт\", \"Кимге акыркы жолу котордум?\" ж.б.\n\nЭскертүү: Купуя маалыматты (сыр сөз, PIN) эч качан бөлүшпөңүз!`;
+Салам, ${userName}! 👋\n\nБанк Жардамчысына кош келиңиз! Мен сизге жалпы банк суроолору, биздин кызматтар жана жеке банк эсебиңиз тууралуу маалымат бере алам.\n\nМен төмөнкүлөр боюнча жардам бере алам:\n• Эсептериңиздин тизмеси жана балансы\n• Акыркы транзакцияларыңыз\n• Кимге жана канча акча которгонсуз\n• Банк кызматтары жана процедуралары\n• Каржы сабаттуулугу жана коопсуздук\n• Акча которуу ассистенти катары иштейм (мисалы, \"100 сомду Бакытка котор\" ж.б.)\n\nЖеке суроолорду да бере аласыз: мисалы, \"Канча акча бар?\", \"Акыркы транзакцияларымды көрсөт\", \"Кимге акыркы жолу котордум?\" ж.б.\n\nЭскертүү: Купуя маалыматты (сыр сөз, PIN) эч качан бөлүшпөңүз!`;
         this.addMessage(welcomeText, 'bot');
     }
     
@@ -110,6 +122,7 @@ class BankingChatbot {
         if (registerForm) {
             registerForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const name = document.getElementById('registerName').value.trim();
                 const email = document.getElementById('registerEmail').value.trim();
                 const password = document.getElementById('registerPassword').value;
                 const errorDiv = document.getElementById('registerError');
@@ -119,7 +132,7 @@ class BankingChatbot {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ email, password })
+                        body: JSON.stringify({ name, email, password })
                     });
                     const data = await response.json();
                     if (response.ok) {
@@ -137,24 +150,42 @@ class BankingChatbot {
         }
 
         // Показывать/скрывать кнопки в зависимости от статуса
-        function updateAuthButtons() {
+        this.updateAuthButtons = () => {
             const logoutBtn = document.getElementById('logoutBtn');
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            const userNameText = document.getElementById('userNameText');
+            
             fetch('/api/history', {credentials: 'include'})
                 .then(r => {
                     if (r.ok) {
-                        logoutBtn.classList.remove('d-none');
-                        loginBtn.classList.add('d-none');
-                        registerBtn.classList.add('d-none');
+                        return r.json();
                     } else {
-                        logoutBtn.classList.add('d-none');
-                        loginBtn.classList.remove('d-none');
-                        registerBtn.classList.remove('d-none');
+                        throw new Error('Not authorized');
                     }
+                })
+                .then(data => {
+                    logoutBtn.classList.remove('d-none');
+                    loginBtn.classList.add('d-none');
+                    registerBtn.classList.add('d-none');
+                    
+                    // Show user name if available
+                    if (data.user_name) {
+                        userNameText.textContent = data.user_name;
+                        userNameDisplay.classList.remove('d-none');
+                    } else {
+                        userNameDisplay.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    logoutBtn.classList.add('d-none');
+                    loginBtn.classList.remove('d-none');
+                    registerBtn.classList.remove('d-none');
+                    userNameDisplay.classList.add('d-none');
                 });
-        }
-        updateAuthButtons();
+        };
+        this.updateAuthButtons();
 
         // Обработчик выхода
         const logoutBtn = document.getElementById('logoutBtn');
@@ -203,6 +234,10 @@ class BankingChatbot {
             const data = await response.json();
             if (response.ok) {
                 this.hideTypingIndicator();
+                // Update user name if provided in response
+                if (data.user_name && !this.userName) {
+                    this.userName = data.user_name;
+                }
                 this.addMessage(data.response, 'bot', data.timestamp, data.message_id, data.category);
             } else {
                 if (response.status === 401) {

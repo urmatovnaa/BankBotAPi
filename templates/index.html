@@ -16,7 +16,11 @@
                 <i class="fas fa-university me-2"></i>
                 Банк Жардамчысы
             </a>
-            <div class="d-flex">
+            <div class="d-flex align-items-center">
+                <span class="text-light me-3 d-none" id="userNameDisplay">
+                    <i class="fas fa-user me-1"></i>
+                    <span id="userNameText"></span>
+                </span>
                 <button class="btn btn-outline-success btn-sm me-2" id="loginBtn">
                     <i class="fas fa-sign-in-alt me-1"></i>
                     Кирүү
@@ -61,8 +65,8 @@
                                     <small class="text-muted ms-2">Азыр эле</small>
                                 </div>
                                 <div class="message-text">
-                                    <p>Банк Жардамчысына кош келиңиз! 👋</p>
-                                    <p>Мен сизге жалпы банк суроолору, биздин кызматтар жана жеке банк эсебиңиз тууралуу маалымат бере алам.</p>
+                                    <p>Салам! 👋</p>
+                                    <p>Банк Жардамчысына кош келиңиз! Мен сизге жалпы банк суроолору, биздин кызматтар жана жеке банк эсебиңиз тууралуу маалымат бере алам.</p>
                                     <ul>
                                         <li>Эсептериңиздин тизмеси жана балансы</li>
                                         <li>Акыркы транзакцияларыңыз</li>
@@ -234,6 +238,10 @@
                 </div>
                 <div class="modal-body">
                     <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="registerName" class="form-label">Атыңыз</label>
+                            <input type="text" class="form-control" id="registerName" required>
+                        </div>
                         <div class="mb-3">
                             <label for="registerEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="registerEmail" required>

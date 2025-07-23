@@ -1,32 +1,61 @@
 import os
+
+import dotenv
+dotenv.load_dotenv()
+
 import logging
 import re
-import google.generativeai as genai
+import asyncio
+from google import genai
+from google.genai import types
 from app import db
 from sqlalchemy import func
-from bank_functions import get_balance, get_transactions, transfer_money, get_last_incoming_transaction
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
 from gemini_function_schemas import gemini_function_schemas
 
-# Initialize Gemini model with function calling tools
-model = genai.GenerativeModel(
-    "gemini-2.0-flash",
-    tools=[{"function_declarations": list(gemini_function_schemas.values())}]
-)
+# Initialize Gemini client and model name
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+MODEL_NAME = "gemini-2.5-flash"
 
 # In-memory store for pending transfers: {user_id: {"to_name": ..., "amount": ...}}
 pending_transfers = {}
 
 class BankingChatbot:
     def __init__(self):
-        # Short, clear system prompt for Gemini 2.0 Flash
         self.system_prompt = (
-            "Сен банк ассистентисиң. Эгер колдонуучу сураса, дайыма function calling колдон. "
-            "Мисалы: баланс, транзакциялар, акча которуу. Жоопту кыргызча бер."
+            "Сен банк ассистентисиң. Төмөндө колдонуучунун профили (аты, аккаунттары) берилген — бул маалыматты дайыма эстеп жүр жана статикалык суроолорго (аты, аккаунт түрлөрү) ушул маалыматтан жооп бер. "
+            "Баланс, транзакциялар, акча которуу сыяктуу динамикалык маалымат үчүн function calling колдон. Жоопту кыргызча бер. "
+            "МААНИЛҮҮ: Жоопторуңда колдонуучунун атын колдон. Мисалы: 'Ооба, {user_name}, балансыңыз 1000 сом', 'Жакшы, {user_name}, акча которуу ийгиликтүү болду' ж.б. "
+            "Колдонуучунун атын жоопторуңда жумшак жана досчолуктуу жол менен колдон."
         )
     
-    def get_personal_response(self, user, user_message):
-        # Теперь персональные вопросы обрабатываются только через function calling Gemini
-        return None
+    def build_prompt(self, conversation_history, user_message, user):
+        prompt_lines = []
+        # System prompt with MCP instruction and user name
+        if user and user.name:
+            system_prompt = self.system_prompt.format(user_name=user.name)
+        else:
+            system_prompt = self.system_prompt.format(user_name="колдонуучу")
+        prompt_lines.append(system_prompt)
+        # Structured static user profile
+        if user:
+            accounts = ", ".join([f"{a.account_type}" for a in user.accounts])
+            user_profile = (
+                f"Профиль колдонуучунун:\n"
+                f"- Аты: {user.name}\n"
+                f"- ID: {user.id}\n"
+                f"- Аккаунттар: {accounts if accounts else 'жок'}"
+            )
+            prompt_lines.append(user_profile)
+        # Conversation history
+        if conversation_history:
+            for msg in conversation_history[-2:]:
+                prompt_lines.append(f"User: {msg['message']}")
+                prompt_lines.append(f"Assistant: {msg['response']}")
+        # Current user message
+        prompt_lines.append(f"User: {user_message}")
+        return prompt_lines
 
     def get_response(self, user_message: str, conversation_history: list = None, user=None) -> str:
         """
@@ -39,53 +68,62 @@ class BankingChatbot:
             The AI's response (Kyrgyz)
         """
         try:
-            messages = []
-            # Use only the last 2 user/model pairs for context
-            history = conversation_history[-2:] if conversation_history else []
-            for i, msg in enumerate(history):
-                if i == 0:
-                    # Prepend system prompt to the first user message
-                    messages.append({"role": "user", "parts": [self.system_prompt + '\n' + msg['message']]})
-                else:
-                    messages.append({"role": "user", "parts": [msg['message']]})
-                messages.append({"role": "model", "parts": [msg['response']]})
-            # Add current user message
-            messages.append({"role": "user", "parts": [user_message]})
-
-            response = model.generate_content(
-                messages,
-                generation_config={
-                    "max_output_tokens": 1000,
-                    "temperature": 0.7,
-                }
+            messages = self.build_prompt(conversation_history, user_message, user)
+            tools = [{"function_declarations": list(gemini_function_schemas.values())}]
+            config = types.GenerateContentConfig(
+                max_output_tokens=1000,
+                temperature=0.7,
+                tools=tools
             )
-
+            response = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=messages,
+                config=config
+            )
             logging.debug(f"Gemini raw response: {response}")
-
-            # First, look for a function call in any part
-            if hasattr(response, 'candidates'):
-                for cand in response.candidates:
-                    if hasattr(cand, 'content') and hasattr(cand.content, 'parts'):
-                        for part in cand.content.parts:
-                            if hasattr(part, 'function_call') and part.function_call:
-                                logging.debug(f"Function call part: {part.function_call}")
-                                return self.handle_gemini_function_call(user, part.function_call)
-            # If no function call, then look for text
-            if hasattr(response, 'candidates'):
-                for cand in response.candidates:
-                    if hasattr(cand, 'content') and hasattr(cand.content, 'parts'):
-                        for part in cand.content.parts:
-                            if hasattr(part, 'text') and part.text:
-                                return part.text.strip()
+            for candidate in response.candidates:
+                content = candidate.content
+                for part in content.parts:
+                    if hasattr(part, 'function_call') and part.function_call:
+                        logging.debug(f"Function call part: {part.function_call}")
+                        return self.handle_gemini_function_call(user, part.function_call)
+            for candidate in response.candidates:
+                content = candidate.content
+                for part in content.parts:
+                    if hasattr(part, 'text') and part.text:
+                        return part.text.strip()
             logging.error(f"No valid response from Gemini: {response}")
             return "Кечиресиз, азыр жооп берүүдө кыйынчылык жаралууда. Кайра аракет кылыңыз же банкка түздөн-түз кайрылыңыз."
         except Exception as e:
             logging.exception(f"Error getting Gemini response: {e}")
             return "Кечиресиз, техникалык ката кетти. Бир аздан кийин кайра аракет кылыңыз же банкка түздөн-түз кайрылыңыз."
 
+    async def call_mcp_tool(self, tool_name: str, **kwargs):
+        """
+        Call an MCP tool using the standard MCP client
+        """
+        try:
+            # Configure MCP server parameters
+            server_params = StdioServerParameters(
+                command="python",
+                args=["banking_mcp_server.py"],
+                env={}
+            )
+            
+            async with stdio_client(server_params) as (read, write):
+                async with ClientSession(read, write) as session:
+                    await session.initialize()
+                    
+                    # Call the tool
+                    result = await session.call_tool(tool_name, arguments=kwargs)
+                    return result.content[0].text if result.content else "No result"
+        except Exception as e:
+            logging.exception(f"Error calling MCP tool {tool_name}: {e}")
+            return f"Кечиресиз, {tool_name} функциясы ишке ашкан жок."
+
     def handle_gemini_function_call(self, user, function_call):
         """
-        Handle function_call from Gemini: calls the appropriate function and returns the result.
+        Handle function_call from Gemini: calls the appropriate MCP tool and returns the result.
         function_call: dict or object with keys 'name' and 'parameters' or 'args'.
         Returns a string response for the user.
         """
@@ -105,55 +143,23 @@ class BankingChatbot:
             if hasattr(params, 'items'):
                 params = dict(params.items())
             logging.debug(f"Function name: {name}, params: {params}")
-            if name == 'get_balance':
-                print("get_balance")
-                _, msg = get_balance(user)
-                return msg
-            elif name == 'get_transactions':
-                limit = params.get('limit', 5) if isinstance(params, dict) else 5
-                txs, err = get_transactions(user, limit=limit)
-                if err:
-                    return err
-                resp = "Акыркы транзакциялар:\n"
-                for t in txs:
-                    resp += f"- {t['type']}: {t['amount']:.2f} сом {t['direction']}, {t['timestamp']}\n"
-                return resp
-            elif name == 'transfer_money':
-                user_id = user.id
-                to_name = params.get('to_name') if isinstance(params, dict) else None
-                amount = params.get('amount') if isinstance(params, dict) else None
-
-                # Check if we have a pending transfer for this user
-                pending = pending_transfers.get(user_id, {})
-
-                # Merge new info with pending info
-                if to_name is None and 'to_name' in pending:
-                    to_name = pending['to_name']
-                if amount is None and 'amount' in pending:
-                    amount = pending['amount']
-                print(to_name, amount, "if there0000")
-                # If still missing info, ask for it and store what we have
-                if not to_name and not amount:
-                    pending_transfers[user_id] = {}
-                    return "Кимге жана канча сумма которууну каалайсыз?"
-                elif not to_name:
-                    pending_transfers[user_id] = {'amount': amount}
-                    return "Кимге которууну каалайсыз?"
-                elif amount is None:
-                    pending_transfers[user_id] = {'to_name': to_name}
-                    return "Канча сумма которууну каалайсыз?"
-
-                # We have both, perform transfer
-                print(user, to_name, amount, "5555555555")
-                ok, msg = transfer_money(user, to_name, amount)
-                print("corrrrrect")
-                # Clear pending state
-                if user_id in pending_transfers:
-                    del pending_transfers[user_id]
-                return msg
-            elif name == 'get_last_incoming_transaction':
-                _, msg = get_last_incoming_transaction(user)
-                return msg
+            
+            # Use MCP client to call the tool
+            if name in ['get_balance', 'get_transactions', 'transfer_money', 'get_last_incoming_transaction']:
+                # Convert params to the format expected by MCP tools
+                mcp_params = {'user_id': user.id}
+                if isinstance(params, dict):
+                    for key, value in params.items():
+                        if key == 'limit':
+                            mcp_params['limit'] = int(value)
+                        elif key == 'to_name':
+                            mcp_params['to_name'] = str(value)
+                        elif key == 'amount':
+                            mcp_params['amount'] = float(value)
+                
+                # Call the MCP tool asynchronously
+                result = asyncio.run(self.call_mcp_tool(name, **mcp_params))
+                return result
             else:
                 logging.error(f"Unknown function call name: {name}")
                 return "Түшүнүксүз функциялык чакыруу."
