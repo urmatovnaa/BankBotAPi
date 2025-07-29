@@ -3,13 +3,13 @@ from functools import wraps
 from flask import render_template, request, jsonify, session
 from app import app, db
 from models import User, ChatMessage, MessageFeedback, QuestionCategory
-# from gemini_service import banking_chatbot
-from aitilbot import AitilBankingChatbot
-from categorization_service import question_categorizer
+from gemini_service import banking_chatbot
+# from aitilbot import AitilBankingChatbot
+from supporting.categorization_service import question_categorizer
 
 import asyncio
 
-banking_chatbot = AitilBankingChatbot()
+# banking_chatbot = AitilBankingChatbot()
 
 def login_required(f):
     @wraps(f)
@@ -94,9 +94,8 @@ def chat(user):
         ]
 
         # Передаем user в get_response
-        # ai_response = banking_chatbot.get_response(user_message, conversation_history, user=user)
-        ai_response = asyncio.run(banking_chatbot.get_response(user_message, conversation_history, user=user))
-        # ai_response = asyncio.run(AitilBankingChatbot.get_response(user_message, conversation_history, user=user))
+        ai_response = banking_chatbot.get_response(user_message, conversation_history, user=user)
+        # ai_response = asyncio.run(banking_chatbot.get_response(user_message, conversation_history, user=user))
         category = question_categorizer.categorize_question(user_message)
 
         chat_message = ChatMessage(

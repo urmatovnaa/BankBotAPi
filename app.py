@@ -37,7 +37,7 @@ with app.app_context():
     db.create_all()
     
     # Initialize categories
-    from categorization_service import question_categorizer
+    from supporting.categorization_service import question_categorizer
     question_categorizer.initialize_categories()
 
 # Import and register routes
