@@ -1,0 +1,323 @@
+{
+  "other": {
+    "other": {
+      "cash_collection_and_delivery": {
+        "name": "Инкассация жана накталай акча жеткирүү",
+        "description": "Брондолгон унааларды колдонуу менен коопсуз инкассация жана накталай акча жеткирүү кызматы.",
+        "features": [
+          "Өзүнө таандык брондолгон унаалар паркы",
+          "Кардарга ыңгайлуу убакта тейлөө",
+          "Операциялардын коопсуздугу камсыздалган"
+        ],
+        "link": "https://www.demirbank.kg/corporate/other/cash-collection-and-delivery"
+      },
+      "corporate_internet_banking": {
+        "name": "Корпоративдик интернет-банкинг",
+        "description": "Юридикалык жактар үчүн эсептерди алыстан башкаруунун заманбап системасы.",
+        "features": [
+          "Мобилдик тиркеме аркылуу QR-код менен авторизация",
+          "Түшүнүүгө жеңил интерфейс",
+          "Транзакциялар жана калдыктар реалдуу убакытта көрсөтүлөт",
+          "Дүйнөнүн каалаган жеринен 24/7 жеткиликтүүлүк"
+        ],
+        "activation_steps": [
+          "ДемирБанктан эсеп ачуу",
+          "Интернет-банкингге кошулуу үчүн арызды толтуруп, кол коюу",
+          "DemirBank мобилдик тиркемесин орнотуу",
+          "QR-кодду сканерлөө аркылуу жеткиликтүүлүктү активдештирүү"
+        ],
+        "link": "https://online.demirbank.kg/corporate/transactions/INDEX_01.jsp?p_LangCD=KGZ"
+      },
+      "account_opening_and_maintenance": {
+        "name": "Расчеттук эсеп ачуу жана тейлөө",
+        "description": "Юридикалык жактар жана жеке ишкерлер үчүн улуттук жана чет элдик валютада эсеп ачуу.",
+        "features": [
+          "KGS, USD, EUR жана башка валюталарда эсеп ачуу мүмкүнчүлүгү",
+          "Зарыл болгон документтер менен банк бөлүмдөрүнүн каалаганынан тейлөө"
+        ],
+        "link": "https://www.demirbank.kg/corporate/settlement-account/opening-and-maintenance"
+      },
+      "cheques_and_checkbooks": {
+        "name": "Чектер жана чек китепчелери",
+        "description": "Корпоративдик кардарлар үчүн чектерди жана чек китепчелерин берүү.",
+        "features": [
+          "Контрагенттер менен эсептешүүдөгү ыңгайлуулук",
+          "Чыгашаларды көзөмөлдөөнү жакшыртуу"
+        ],
+        "link": "https://www.demirbank.kg/ky/corporate/bank-services/cheques-and-checkbooks"
+      },
+      "money_transfers_in_foreign_currency": {
+        "name": "Чет элдик валютадагы акча которуулар",
+        "description": "SWIFT аркылуу дүйнө жүзү боюнча USD, EUR, RUB, CNY, KZT жана башка валютада акча которуулар.",
+        "features": [
+          "Эки түрү бар: стандарттуу жана ылдам которуулар",
+          "Которуулар үчүн валюталардын кеңири тандоосу"
+        ],
+        "link": "https://www.demirbank.kg/ky/corporate/money-transfer/money-transfer-in-foreign-currency"
+      },
+      "corporate_business_development_loans": {
+        "name": "Ишкердикти өнүктүрүүгө насыялар",
+        "description": "Бизнес максаттар үчүн кредиттер.",
+        "types": [
+          {
+            "name": "Обороттук капитал үчүн насыя",
+            "link": "https://demirbank.kg/corporate/corporate-loans/business-development?modal=working-capital"
+          },
+          {
+            "name": "Инвестициялык долбоорлор үчүн насыя",
+            "link": "https://demirbank.kg/corporate/corporate-loans/business-development?modal=investment-projects"
+          },
+          {
+            "name": "«Борусан Макина Кыргызстан» насыясы",
+            "link": "https://demirbank.kg/corporate/corporate-loans/business-development?modal=borusan-makina"
+          }
+        ],
+        "link": "https://demirbank.kg/corporate/corporate-loans/business-development"
+      },
+      "kyrseff_profitable_loan": {
+        "name": "KYRSEFF “Кирешелүү” насыясы",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-loans/profitable-kyrseff"
+      },
+      "corporate_agri_loans": {
+        "name": "Агрокредиттер",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-loans/for-agribusiness"
+      },
+      "corporate_overdraft": {
+        "name": "Овердрафт",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-loans/overdraft"
+      },
+      "corporate_trade_finance_services": {
+        "name": "Сооданы каржылоого багытталган кызматтар жана сунуштар",
+        "description": null,
+        "types": [
+          {
+            "name": "Документардык аккредитив",
+            "link": "https://demirbank.kg/corporate/corporate-loans/trade-finance?modal=documentary-credit"
+          },
+          {
+            "name": "Банк кепилдиги",
+            "link": "https://demirbank.kg/corporate/corporate-loans/trade-finance?modal=bank-guarantee"
+          },
+          {
+            "name": "Документардык инкассо",
+            "link": "https://demirbank.kg/corporate/corporate-loans/trade-finance?modal=documentary-collection"
+          }
+        ],
+        "link": "https://demirbank.kg/corporate/corporate-loans/trade-finance"
+      },
+      "corporate_term_deposit": {
+        "name": "Мөөнөттүү депозит (Корпоративдик)",
+        "description": null,
+        "types": [
+          {
+            "name": "«Корпоративдик» депозит",
+            "link": "https://demirbank.kg/corporate/corporate-deposits-investments/term-deposit?tab=urgent-deposit-corporate"
+          },
+          {
+            "name": "«Корпоративдик+» депозит",
+            "link": "https://demirbank.kg/corporate/corporate-deposits-investments/term-deposit?tab=deposit-corporate-plus"
+          }
+        ],
+        "link": "https://demirbank.kg/corporate/corporate-deposits-investments/term-deposit"
+      },
+      "corporate_government_securities_investment": {
+        "name": "Мамлекеттик баалуу кагаздарга инвестиция (Корпоративдик)",
+        "description": null,
+        "types": [
+          {
+            "name": "Мамлекеттик казыналык векселдер",
+            "link": "https://demirbank.kg/corporate/corporate-deposits-investments/government-securities#%D0%B3%D0%BA%D0%B2"
+          },
+          {
+            "name": "Кыргыз Республикасынын Улуттук банкынын ноталары",
+            "link": "https://demirbank.kg/corporate/corporate-deposits-investments/government-securities#%D0%BD%D0%BE%D1%82%D1%8B"
+          }
+        ],
+        "link": "https://demirbank.kg/corporate/corporate-deposits-investments/government-securities"
+      },
+      "corporate_visa_business_card": {
+        "name": "Корпоративдик Visa Business картасы",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-cards/visa-business"
+      },
+      "corporate_salary_project": {
+        "name": "Айлык маяна долбоору",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-cards/salary-project"
+      },
+      "corporate_visa_debit_cards": {
+        "name": "Visa Дебет карталары (Корпоративдик)",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-cards/visa-debit-cards"
+      },
+      "corporate_mastercard_debit_cards": {
+        "name": "Mastercard Дебет карталары (Корпоративдик)",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/corporate-cards/mastercard-debit-cards"
+      },
+      "corporate_merchant_acquiring": {
+        "name": "Соода эквайринги",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/acquiring/merchant-acquiring"
+      },
+      "corporate_internet_acquiring": {
+        "name": "Интернет-эквайринг",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/acquiring/e-commerce"
+      },
+      "corporate_qr_pay": {
+        "name": "QR pay",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/acquiring/business-qr-pay"
+      },
+      "corporate_softpos": {
+        "name": "SoftPOS",
+        "description": null,
+        "link": "https://demirbank.kg/corporate/acquiring/softpos"
+      },
+      "bank_safe_deposit_boxes": {
+        "name": "Банктын сейф ячейкалары",
+        "description": "Баалуу буюмдарды коопсуз сактоо үчүн сейф ячейкаларын ижарага берүү.",
+        "link": "https://demirbank.kg/corporate/other/bank-safe-deposit-boxes"
+      },
+      "retail_credit_cards": {
+        "name": "Кредиттик карталар (Жеке жактарга)",
+        "description": null,
+        "types": [
+          {
+            "name": "%сыз бөлүп төлөө картасы",
+            "link": "https://demirbank.kg/retail/cards/card-plus"
+          },
+          {
+            "name": "Visa кредиттик карталары",
+            "link": "https://demirbank.kg/retail/cards/credit-visa-cards"
+          },
+          {
+            "name": "Mastercard кредиттик карталары",
+            "link": "https://demirbank.kg/retail/cards/credit-mastercard-cards"
+          },
+          {
+            "name": "Виртуалдык карта",
+            "link": "https://demirbank.kg/retail/cards/virtual-credit-cards"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/cards/credit-cards"
+      },
+      "retail_debit_cards": {
+        "name": "Дебеттик карталар (Жеке жактарга)",
+        "description": null,
+        "types": [
+          {
+            "name": "Visa дебеттик карталары",
+            "link": "https://demirbank.kg/retail/cards/debit-visa-cards"
+          },
+          {
+            "name": "Mastercard дебеттик карталары",
+            "link": "https://demirbank.kg/retail/cards/debit-mastercard-cards"
+          },
+          {
+            "name": "“Элкарт” картасы",
+            "link": "https://demirbank.kg/retail/cards/elcart-card"
+          },
+          {
+            "name": "Кампустук карталар",
+            "link": "https://demirbank.kg/retail/cards/campus-visa-card"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/cards/debit-cards"
+      },
+      "retail_deposits": {
+        "name": "Депозиттер (Жеке жактарга)",
+        "description": null,
+        "types": [
+          {
+            "name": "«Стандарт» Мөөнөттүү депозити",
+            "link": "https://demirbank.kg/retail/deposits-and-investments/term-deposit"
+          },
+          {
+            "name": "«Кард+» Мөөнөттүү депозити",
+            "link": "https://demirbank.kg/retail/deposits-and-investments/deposit-card-plus"
+          },
+          {
+            "name": "Онлайн депозит",
+            "link": "https://demirbank.kg/retail/deposits-and-investments/online-deposit"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/deposits-and-investments/deposits-investments"
+      },
+      "retail_government_securities_investment": {
+        "name": "Мамлекеттик баалуу кагаздарга инвестициялар (Жеке жактарга)",
+        "description": null,
+        "types": [
+          {
+            "name": "Мамлекеттик баалуу кагаздар",
+            "link": "https://demirbank.kg/retail/deposits-and-investments/government-securities#%D0%B3%D0%BA%D0%B2"
+          },
+          {
+            "name": "Кыргыз Республикасынын Улуттук Банкынын ноталары",
+            "link": "https://demirbank.kg/retail/deposits-and-investments/government-securities#%D0%BD%D0%BE%D1%82%D1%8B"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/deposits-and-investments/government-securities"
+      },
+      "retail_consumer_loan": {
+        "name": "Керектөө насыясы",
+        "description": "Ар кандай максаттар үчүн берилүүчү насыя.",
+        "types": [
+          {
+            "name": "Ар кандай максаттар үчүн насыя",
+            "link": "https://demirbank.kg/retail/loans/loan-for-any-purpose#%D0%B0%D1%80_%D0%BA%D0%B0%D0%BD%D0%B4%D0%B0%D0%B9_%D0%BC%D0%B0%D0%BA%D1%81%D0%B0%D1%82%D1%82%D0%B0%D1%80_%D1%83%D1%87%D1%83%D0%BD_%D0%BD%D0%B0%D1%81%D1%8B%D1%8F"
+          },
+          {
+            "name": "Өнөктөштөрдөн атайын сунуш",
+            "link": "https://demirbank.kg/retail/loans/loan-for-any-purpose#%D0%B1%D0%B8%D0%B7%D0%B4%D0%B8%D0%BD_%D3%A9%D0%BD%D3%A9%D0%BA%D1%82%D3%A9%D1%88%D1%82%D3%A9%D1%80%D0%B4%D3%A9%D0%BD_%D0%B0%D1%82%D0%B0%D0%B9%D1%8B%D0%BD_%D1%81%D1%83%D0%BD%D1%83%D1%88%D1%82%D0%B0%D1%80"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/loans/loan-for-any-purpose"
+      },
+      "retail_car_loan": {
+        "name": "Автоунаа насыясы",
+        "description": null,
+        "types": [
+          {
+            "name": "«Стандарт» насыясы",
+            "link": "https://demirbank.kg/retail/loans/standard-car-loan"
+          },
+          {
+            "name": "Автосалондон жаңы автоунаа алуу үчүн",
+            "link": "https://demirbank.kg/retail/loans/car-loan"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/loans/loan-for-car-purchase"
+      },
+      "retail_mortgage": {
+        "name": "Ипотека",
+        "description": null,
+        "types": [
+          {
+            "name": "Стандарттык ипотекалык насыя",
+            "link": "https://demirbank.kg/retail/mortgage-programs/standard-mortgage-loan"
+          },
+          {
+            "name": "Курулуш компанияларынан атайын сунуш",
+            "link": "https://demirbank.kg/retail/mortgage-programs/special-construct-offers"
+          }
+        ],
+        "link": "https://demirbank.kg/retail/mortgage-programs/mortgage-programs"
+      },
+      "retail_mobile_banking": {
+        "name": "Мобилдик банкинг",
+        "description": null,
+        "link": "https://demirbank.kg/retail/digital-banking/mobile-banking"
+      },
+      "retail_internet_banking": {
+        "name": "Интернет-банкинг (Жеке жактарга)",
+        "description": null,
+        "link": "https://demirbank.kg/retail/digital-banking/internet-banking"
+      }
+    }
+  }
+}

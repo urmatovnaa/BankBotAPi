@@ -1,0 +1,156 @@
+{
+  "corporate-cards": {
+    "corporate-cards": {
+      "visa_business": {
+        "name": "Visa Business корпоративдик картасы",
+        "description": "Visa Business картасын колдонгон кардарларыбыз үчүн иш сапарлары, өкүлчүлүк жана чарба чыгымдарын төлөө ыкчам, ыңгайлуу жана коопсуз болот.",
+        "currency": "KGS",
+        "validity_period": "3 жыл",
+        "issuance_fee": "500 сом",
+        "annual_service_fee": "1 500 сом",
+        "credit_limit": {
+          "minimum": "5 000 сомдон",
+          "collateral_requirement": "Кредиттик картанын лимити + 10%"
+        },
+        "interest_rate": "Жылына 30%",
+        "grace_period": "35 күнгө чейин",
+        "features": {
+          "chip_protection": true,
+          "overdraft_limit": true,
+          "additional_cards": true,
+          "emergency_services": {
+            "cash_disbursement": true,
+            "card_replacement": true
+          },
+          "medical_and_legal_assistance": true
+        },
+        "benefits": [
+          "Жеңилдетилген мөөнөт ичинде кредиттик лимитти колдонгондо 35 күнгө чейин 0%",
+          "Карта менен төлөөдө арзандатуу жана бонус программалары"
+        ],
+        "how_to_apply": [
+          "Demir Bank кеңсесине келип эсеп ачыңыз",
+          "Башкы банктык эсеп келишимин түзүү жана тиешелүү арызга кол коюу",
+          "Карта чыгартуу үчүн өтүнүч кагазын толтуруп, кол коюңуз"
+        ],
+        "application_form_link": "https://demirbank.kg/corporate/useful-information-corporate/cards?tab_number=3"
+      }
+    },
+    "salary_project": {
+      "name": "Айлык маяна долбоору",
+      "description": "Сиздин уюмдун кызматкерлерге маянасын берүү үчүн эсептерден накталай акча чыгаруу зарылчылыгынан бошотот",
+      "advantages": [
+        {
+          "title": "24/7 жеткиликтүүлүк",
+          "description": "Кызматкерлер айлык маянасын банкоматтардан алуу жана төлөмдөрдү аткаруу мүмкүнчүлүгү"
+        },
+        {
+          "title": "Коопсуздукту жоорулатуу",
+          "description": "Накталай каражаттар менен байланыштуу коркунучтарды азайтат"
+        },
+        {
+          "title": "Төлөмдөрдү автоматаштыруу",
+          "description": "Айлык маяна колдон берүү үчүн накталай акча чыгаруу жана аны саноо зарылчылыгынан бошотот"
+        }
+      ],
+      "offered_cards": {
+        "visa_debit": {
+          "name": "Visa Дебет карталары",
+          "description": "Эл аралык Visa дебет карталары, төлөм карталарын биринчи ирээт колдонгондор үчүн өтө ыңгайлуу",
+          "currencies": [
+            "KGS",
+            "USD",
+            "EUR"
+          ],
+          "discount_range_at_partners": "3% пайыздан 50% пайызга чейин",
+          "features": {
+            "3d_secure": true,
+            "multi_currency": true
+          },
+          "link": "https://demirbank.kg/corporate/corporate-cards/visa-debit-cards"
+        },
+        "mastercard_debit": {
+          "name": "Mastercard Дебет карталары",
+          "description": "Банкоматтардан накталай каражат чыгаруу, кызмат жана сатып алууларда эл аралык төлөм системасы",
+          "currencies": [
+            "KGS",
+            "EUR",
+            "USD"
+          ],
+          "discount_range_at_partners": "3% пайыздан 50% пайызга чейин",
+          "features": {
+            "3d_secure": true,
+            "multi_currency": true
+          },
+          "link": "https://demirbank.kg/corporate/corporate-cards/mastercard-debit-cards"
+        },
+        "visa_classic_salary": {
+          "name": "Visa Classic",
+          "description": "Visa Classic кадимки байланыш ыкмасы менен төлөмдөрдү гана эмес, ошондой эле контактсыз төлөмдөрдү, онлайн төлөмдөрдү жана электрондук капчыктарды толуктоо мүмкүнчүлүгүн берет. Биздин карта — сиздин стилиңиздин жана ишенимдүүлүгүңүздүн белгиси. Каржы дүйнөсүнө өзгөчө кадам таштаңыз! DemirBankтан Visa International эл аралык төлөм системасынын карталары менен дүйнөнүн каалаган бурчунда сатып алууларды жүргүзүү, накталай акча алуу оңой жана ыңгайлуу! Негизги эсепти сом менен же доллар менен ачууга болот.",
+          "currency_options": [
+            "KGS",
+            "USD",
+            "EUR"
+          ],
+          "validity_period": "5 жыл",
+          "issuance_fee": "Тегерек",
+          "annual_service_fee": "Тегерек",
+          "transaction_limits": {
+            "contactless_without_pin": {
+              "number_of_transactions": "10 операция",
+              "amount_per_transaction": "5 000 сом"
+            },
+            "atm_withdrawal_limit": "200 000 сом / 500 АКШ доллары",
+            "internal_bank_transfer_atm_limit": "400 000 сом",
+            "currency_exchange_atm_limit": "50 000 сом",
+            "pos_non_cash_payment_limit": "400 000 сом"
+          },
+          "features": {
+            "contactless_payment": true,
+            "online_payment": true,
+            "e_wallet_top_up": true,
+            "multicurrency_support": true,
+            "high_security": true
+          },
+          "benefits": [
+            "DemirBank Visa карталары менен төлөөдө арзандатуулар жана бонустар",
+            "Өнөктөштөрдөн 3% пайыздан 50% пайызга чейин арзандатуулар"
+          ]
+        },
+        "visa_gold_salary": {
+          "name": "Visa Gold",
+          "description": "Бул карта PayWave технологиясы менен камсыздалган. Анын жардамы менен соода түйүндөрүндө тез жана коопсуз контактсыз төлөм жүргүзүү мүмкүн. Visa Gold Debit — бул премиум тейлөө менен коштолгон заманбап дебеттик карта. DemirBankтан Visa International эл аралык төлөм системасынын карталары менен дүйнөнүн каалаган бурчунда сатып алууларды жүргүзүү, накталай акча алуу оңой жана ыңгайлуу! Негизги эсепти сом менен же доллар менен ачууга болот.",
+          "currency_options": [
+            "KGS",
+            "USD",
+            "EUR"
+          ],
+          "validity_period": "5 жыл",
+          "issuance_fee": "Акысыз",
+          "annual_service_fee": "1 000 сом",
+          "transaction_limits": {
+            "contactless_without_pin": {
+              "number_of_transactions": "10 жолу транзакция",
+              "amount_per_transaction": "5 000 сом"
+            },
+            "atm_withdrawal_limit": "400 000 сом / 700 USD",
+            "internal_bank_transfer_atm_limit": "400 000 сом",
+            "currency_exchange_atm_limit": "50 000 сом",
+            "pos_non_cash_payment_limit": "500 000 сом"
+          },
+          "features": {
+            "contactless_payment": true,
+            "online_payment": true,
+            "e_wallet_top_up": true,
+            "multicurrency_support": true,
+            "high_security": true
+          },
+          "benefits": [
+            "DemirBank Visa карталары менен төлөөдө арзандатуулар жана бонустар",
+            "Өнөктөштөрдөн 3% пайыздан 50% пайызга чейин арзандатуулар"
+          ]
+        }
+      }
+    }
+  }
+}

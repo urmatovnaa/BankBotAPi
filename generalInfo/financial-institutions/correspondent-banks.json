@@ -1,0 +1,197 @@
+{
+  "correspondent-banks": [
+    {
+      "currency": "USD",
+      "banks": [
+        {
+          "name": "KOOKMIN BANK",
+          "address": "26, Gukjegeumyung-ro 8-gil, Yeongdeungpo-gu, Seoul, 07331, Корея Республикасы",
+          "swift": "CZNBKRSE",
+          "correspondent_account": "8D2-8-USD-01-8",
+          "intermediary_banks": [
+            {
+              "name": "JPMORGAN CHASE BANK",
+              "swift": "CHASUS33",
+              "account": "0011544111"
+            },
+            {
+              "name": "CITIBANK",
+              "swift": "CITIUS33",
+              "account": "36049172"
+            },
+            {
+              "name": "BANK OF AMERICA",
+              "swift": "BOFAUS3N",
+              "account": "6550694497"
+            },
+            {
+              "name": "THE BANK OF NEW YORK MELLON",
+              "swift": "IRVTUS3N",
+              "account": "8033256958"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "currency": "EUR",
+      "banks": [
+        {
+          "name": "LANDESBANK BADEN-WÜRTTEMBERG (LBBW)",
+          "address": "Am Hauptbahnhof 2, 70173 Stuttgart, Германия",
+          "swift": "SOLADEST",
+          "correspondent_account": "2800442",
+          "note": "Только для входящих платежей из стран ЕЭЗ, Швейцарии и Великобритании"
+        },
+        {
+          "name": "BANK OF GEORGIA",
+          "address": "29a Gagarin Str., Tbilisi 0160, Грузия",
+          "swift": "BAGAGE22",
+          "correspondent_account": "GE78BG0000000101421733",
+          "intermediary_banks": [
+            {
+              "name": "INTESA SANPAOLO SPA",
+              "swift": "BCITITMM",
+              "account": "IT47 U030 6940 1011 0010 0022 090"
+            },
+            {
+              "name": "SOCIETE GENERALE",
+              "swift": "SOGEFRPP",
+              "account": "001015858190"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "currency": "RUB",
+      "banks": [
+        {
+          "name": "CREDIT EUROPE BANK (RUSSIA) LTD",
+          "address": "Олимпийский проспект, 14, Москва, Россия",
+          "swift": "FMOSRUMM",
+          "correspondent_account": "30111810100010011676",
+          "payment_details": {
+            "corr_account_with_central_bank": "30101810900000000767",
+            "bic": "044525767",
+            "inn": "7705148464",
+            "kpp": "770201001"
+          }
+        }
+      ]
+    },
+    {
+      "currency": "KZT",
+      "banks": [
+        {
+          "name": "JSC EURASIAN BANK",
+          "address": "83, Tole bi, Алматы, Казахстан",
+          "swift": "EURIKZKA",
+          "correspondent_account": "KZ9394800KZT20130012",
+          "payment_details": {
+            "corr_account_with_national_bank": "KZ67125KZT1001300285",
+            "bin": "950240000112",
+            "kbe": "14"
+          }
+        },
+        {
+          "name": "HALYK SAVINGS BANK OF KAZAKHSTAN",
+          "address": "109V Abay ave, Алматы, Казахстан",
+          "swift": "HSBKKZKX",
+          "correspondent_account": "KZ926010011000139819",
+          "bin": "991250015115"
+        }
+      ]
+    },
+    {
+      "currency": "GBP",
+      "banks": [
+        {
+          "name": "KOOKMIN BANK",
+          "address": "Kookmin Bank H.Q, Sewoo Building, 115 Yeouigongwon-ro, Yeongdeungpo-gu, Seoul, 07241, Корея Республикасы",
+          "swift": "CZNBKRSE",
+          "correspondent_account": "8D2-8-GBP-01-7",
+          "intermediary_banks": [
+            {
+              "name": "NATIONAL WESTMINSTER BANK PLC",
+              "swift": "NWBKGB2L",
+              "account": "4400004456882"
+            },
+            {
+              "name": "HSBC BANK PLC",
+              "swift": "MIDLGB22",
+              "account": "36585973"
+            },
+            {
+              "name": "STANDARD CHARTERED BANK",
+              "swift": "SCBLGB2L",
+              "account": "01273165701"
+            },
+            {
+              "name": "BARCLAYS BANK PLC",
+              "swift": "BARCGB22",
+              "account": "203253 03021874"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "currency": "CNY",
+      "banks": [
+        {
+          "name": "BANK OF COMMUNICATIONS CO., LTD",
+          "address": "188 Yin Cheng Zhong Lu, Шанхай, Кытай",
+          "swift": "COMMCNSHSHI",
+          "correspondent_account": "310066726018170153759"
+        },
+        {
+          "name": "INDUSTRIAL BANK CO., LTD., Guangzhou Branch",
+          "address": "Industrial Bank Building, No.101, TianHe Road, Гуанчжоу, Кытай",
+          "swift": "FJIBCNBA500",
+          "correspondent_account": "399410100100303548"
+        },
+        {
+          "name": "SHANGHAI PUDONG DEVELOPMENT BANK CO., LTD",
+          "address": "Eastern Tower, No. 689 East Beijing Road, Шанхай, Кытай",
+          "swift": "SPDBCNSH",
+          "correspondent_account": "99010001601000056"
+        }
+      ]
+    },
+    {
+      "currency": "JPY",
+      "banks": [
+        {
+          "name": "INDUSTRIAL AND COMMERCIAL BANK OF CHINA (ALMATY) JSC",
+          "address": "7 блок, №846 здание, ул. Тургут Озал, 150/230 проспект Абая, Алматы, Казахстан",
+          "swift": "ICBKKZKX",
+          "correspondent_account": "KZ859300001000015943"
+        }
+      ]
+    },
+    {
+      "currency": "TRY",
+      "banks": [
+        {
+          "name": "TURKIYE IS BANKASI A.S.",
+          "address": "Herti Plaza, İnönü Caddesi, Güven Sokak, No:1 Kat:3, 34742 Kozyatağı/Kadıköy-Истанбул, Түркия",
+          "swift": "ISBKTRIS",
+          "correspondent_account": "TR910006400000101790005186"
+        },
+        {
+          "name": "AKBANK T.A.S.",
+          "address": "Sabanci Center, 4. Levent, 34330, Истанбул, Түркия",
+          "swift": "AKBKTRIS",
+          "correspondent_account": "TR240004600999888000000101"
+        },
+        {
+          "name": "TURKIYE HALK BANKASI A.S.",
+          "address": "Finanskent Mahallesi Finans Caddesi No:42/1, 34760, Umraniye, Истанбул, Түркия",
+          "swift": "TRHBTR2A",
+          "correspondent_account": "TR930001200988800087000665"
+        }
+      ]
+    }
+  ]
+}

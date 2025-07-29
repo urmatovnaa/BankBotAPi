@@ -1,0 +1,23 @@
+{
+  "to-our-partners": {
+    "description": "ДемирБанк өзүнүн өнөктөштөрүнө терең урматтоо менен мамиле кылат жана туруктуу жана өз ара пайдалуу кызматташтыкты көздөйт.",
+    "contact_information": {
+      "bank_name": "ЖЧК «Демир Кыргыз Интернэшнл Банк»",
+      "address": "Токтогул көчөсү, 125/1, Бишкек, Кыргызстан",
+      "phone": "+996 (312) 610 610",
+      "email": "info@demirbank.kg",
+      "website": "https://demirbank.kg"
+    },
+    "services_for_partners": [
+      "Корреспонденттик эсептерди ачуу жана тейлөө",
+      "Эл аралык эсептешүүлөр жана которуулар",
+      "Валюта алмаштыруу жана конвертациялык операциялар",
+      "МСФО боюнча финансылык отчетторду берүү",
+      "Комплаенс жана KYC-процедуралар боюнча колдоо"
+    ],
+    "additional_resources": {
+      "correspondent_banks": "https://demirbank.kg/ky/about/correspondent-banks/correspondent-banks",
+      "financial_statements": "https://demirbank.kg/ky/financial/financial-highlights/financial-highlights"
+    }
+  }
+}
