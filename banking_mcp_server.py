@@ -4,9 +4,19 @@ load_dotenv()
 
 import asyncio
 from fastmcp import FastMCP
-from bank_functions import get_balance, get_transactions, transfer_money, get_last_incoming_transaction, get_accounts_info, get_incoming_sum_for_period, get_outgoing_sum_for_period, get_last_3_transfer_recipients, get_largest_transaction
+from bank_functions import (
+    get_balance, get_transactions, transfer_money, get_last_incoming_transaction, 
+    get_accounts_info, get_incoming_sum_for_period, get_outgoing_sum_for_period, 
+    get_last_3_transfer_recipients, get_largest_transaction
+)
+from demir_functions import (
+    list_all_card_names, get_card_details, compare_cards, get_card_limits, get_card_benefits
+)
+
 from models import User
 from app import app
+import json
+
 
 # Create FastMCP server
 server = FastMCP("banking-mcp-server")
@@ -150,6 +160,53 @@ async def get_largest_transaction_tool(user_id: int):
         if err:
             return err
         return f"Эң чоң транзакция: {tx['amount']:.2f} сом {tx['direction']}, {tx['timestamp']}"
+
+@server.tool(
+    name="list_all_card_names",
+    description="DemirBank'тагы бардык карталардын тизмесин кайтарат"
+)
+async def list_all_card_names_tool():
+    result = list_all_card_names()
+    result_text = ""
+    for card in result:
+        result_text += f"Карта аты: {card['name']}\n"
+    return result_text
+
+@server.tool(
+    name="get_card_details",
+    description="Карта аталышы боюнча бардык негизги маалыматты кайтарат (мисалы, валюта, мөөнөтү, чыгымдар, лимиттер, сүрөттөмө)."
+)
+async def get_card_details_tool(card_name: str):
+    result = get_card_details(card_name)
+    result_text = ""
+    for key, value in result.items():
+        result_text += f"{key}: {value}\n"
+    return result_text
+
+@server.tool(
+    name="compare_cards",
+    description="Бир нече картаны негизги параметрлер боюнча салыштырат. Аргумент катары карталардын аттарынын тизмеси берилет."
+)
+async def compare_cards_tool(card_names: list):
+    result = compare_cards(card_names)
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+@server.tool(
+    name="get_card_limits",
+    description="Карта аталышы боюнча лимиттерди кайтарат (ATM, POS, контактсыз ж.б.)."
+)
+async def get_card_limits_tool(card_name: str):
+    result = get_card_limits(card_name)
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+@server.tool(
+    name="get_card_benefits",
+    description="Карта аталышы боюнча артыкчылыктарды жана өзгөчөлүктөрдү кайтарат."
+)
+async def get_card_benefits_tool(card_name: str):
+    result = get_card_benefits(card_name)
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
 
 # Run the MCP server
 if __name__ == "__main__":
