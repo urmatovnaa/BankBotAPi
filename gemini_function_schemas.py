@@ -90,5 +90,58 @@ gemini_function_schemas = {
             "properties": {},
             "required": []
         }
+    },
+    "list_all_card_names": {
+        "name": "list_all_card_names",
+        "description": "DemirBank'тагы бардык карталардын тизмесин кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+    "get_card_details": {
+        "name": "get_card_details",
+        "description": "Карта аталышы боюнча бардык негизги маалыматты кайтарат (мисалы, валюта, мөөнөтү, чыгымдар, лимиттер, сүрөттөмө).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "card_name": {"type": "string", "description": "Карта аталышы (мисалы, 'Visa Classic Debit')"}
+            },
+            "required": ["card_name"]
+        }
+    },
+    "compare_cards": {
+        "name": "compare_cards",
+        "description": "Бир нече картаны негизги параметрлер боюнча салыштырат. Аргумент катары карталардын аттарынын тизмеси берилет.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "card_names": {"type": "array", "items": {"type": "string"}, "description": "Карталардын аттарынын тизмеси"}
+            },
+            "required": ["card_names"]
+        }
+    },
+    "get_card_limits": {
+        "name": "get_card_limits",
+        "description": "Карта аталышы боюнча лимиттерди кайтарат (ATM, POS, контактсыз ж.б.).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "card_name": {"type": "string", "description": "Карта аталышы (мисалы, 'Visa Classic Debit')"}
+            },
+            "required": ["card_name"]
+        }
+    },
+    "get_card_benefits": {
+        "name": "get_card_benefits",
+        "description": "Карта аталышы боюнча артыкчылыктарды жана өзгөчөлүктөрдү кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "card_name": {"type": "string", "description": "Карта аталышы (мисалы, 'Visa Classic Debit')"}
+            },
+            "required": ["card_name"]
+        }
     }
 }
