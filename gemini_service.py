@@ -27,12 +27,12 @@ class BankingChatbot:
     def __init__(self):
         self.system_prompt = (
             "Сен банк ассистентисиң. Төмөндө колдонуучунун профили (аты, аккаунттары) берилген — бул маалыматты дайыма эстеп жүр жана статикалык суроолорго (аты, аккаунт түрлөрү) ушул маалыматтан жооп бер. "
-            "Баланс, транзакциялар, акча которуу сыяктуу динамикалык маалымат үчүн function calling колдон. Жоопту кыргызча бер. "
-            "Карта, депозит, насыялар же башка жөнүндө информация же суроого жооп керек болсо function calling колдон. Жоопту кыргызча бер."
+            "Баланс, транзакциялар, акча которуу сыяктуу динамикалык маалымат үчүн function calling колдон. "
+            "Карта, депозит, насыялар же башка жөнүндө информация же суроого жооп керек болсо function calling колдон."
             "Эгер function_call жооп катары Сырой JSON кайтарса, аны адамча тилде, жыйнактап, пунктирлеп түшүндүр. Сырой JSON кайтарба. Текст кайтар."
             "МААНИЛҮҮ: Жоопторуңда колдонуучунун атын колдон. Мисалы: 'Ооба, {user_name}, балансыңыз 1000 сом', 'Жакшы, {user_name}, акча которуу ийгиликтүү болду' ж.б. "
             "Колдонуучунун атын жоопторуңда жумшак жана досчолуктуу жол менен колдон."
-            "ДАЙЫМА ТЕКСТ МЕНЕН ЖООП БЕР, JSON, LIST, DICT ЖАНА БАШКА ЖӨНӨТСӨ БОЛБОЙТ"
+            "МААНИЛҮҮ: user кайсыл тилде жазса, ошол тилде жооп бер."
         )
     
     def build_prompt(self, conversation_history, user_message, user):
@@ -62,14 +62,36 @@ class BankingChatbot:
         prompt_lines.append(f"User: {user_message}")
         return prompt_lines
 
-    async def translate_text(self, text: str, target_lang: str = "ky") -> str:
-        prompt = [f"translate my meaning to {target_lang} and return only translation, also format text to easy-read to person:\n\n{text}"]
+    async def translate_format_text(self, text: str, target_lang: str = "ky") -> str:
+        # Маппинг кодов языков для Gemini
+        lang_mapping = {
+            'ky': 'kyrgyz',
+            'ru': 'russian', 
+            'en': 'english'
+        }
+        
+        target_lang_name = lang_mapping.get(target_lang, target_lang)
+        prompt = [
+            f"translate my meaning to {target_lang_name} and return only 1 translation.",
+            "Give the comparison only. No explanations, no introductions, no phrases like 'Below is...' or 'The following...",
+            "also format text to easy-read to person:",
+            "When formatting lists, dictionaries, or structured data:",
+            "- Use bullet points (•) for lists",
+            "- Use numbered lists (1., 2., 3.) for steps or rankings", 
+            "- Use clear headings with emojis for sections",
+            "- Format currency amounts clearly (e.g., '1,000 сом', '500 USD')",
+            "- Use tables or structured format for comparisons",
+            "- Add spacing between sections for better readability",
+            "- Use bold text (**text**) for important information",
+            "- Format percentages clearly (e.g., '15% жылдык')",
+            f"Return only the formatted text without any additional explanations:\n\n{text}"
+        ]
         try:
             config = types.GenerateContentConfig(
                 max_output_tokens=2000,
                 temperature=0.6,
             )
-            print("promt", prompt)
+            print("prompt", prompt)
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompt,
@@ -90,7 +112,7 @@ class BankingChatbot:
             conversation_history: List of previous messages for context
             user: User object (for personal banking functions)
         Returns:
-            The AI's response (Kyrgyz)
+            The AI's response in user's language
         """
         try:
             messages = self.build_prompt(conversation_history, user_message, user)
@@ -106,17 +128,33 @@ class BankingChatbot:
                 config=config
             )
             logging.debug(f"Gemini raw response: {response}")
+            
+            # Сначала проверяем function calls
             for candidate in response.candidates:
                 content = candidate.content
                 for part in content.parts:
                     if hasattr(part, 'function_call') and part.function_call:
                         logging.debug(f"Function call part: {part.function_call}")
                         return self.handle_gemini_function_call(user, part.function_call)
+            
+            # Затем проверяем текстовые ответы
             for candidate in response.candidates:
                 content = candidate.content
                 for part in content.parts:
                     if hasattr(part, 'text') and part.text:
-                        return part.text.strip()
+                        response_text = part.text.strip()
+                        
+                        # Пытаемся распарсить JSON ответ
+                        try:
+                            parsed_response = json.loads(response_text)
+                            if 'language' in parsed_response and 'text' in parsed_response:
+                                return parsed_response['text']
+                        except json.JSONDecodeError:
+                            # Если не JSON, возвращаем как есть
+                            pass
+                        
+                        return response_text
+            
             logging.error(f"No valid response from Gemini: {response}")
             return "Кечиресиз, азыр жооп берүүдө кыйынчылык жаралууда. Кайра аракет кылыңыз же банкка түздөн-түз кайрылыңыз."
         except Exception as e:
@@ -134,11 +172,9 @@ class BankingChatbot:
                 args=["banking_mcp_server.py"],
                 env={}
             )
-            print("до server_params -----------------------------------------")
             async with stdio_client(server_params) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
-                    print("до initialize -----------------------------------------")
                     # Call the tool
                     result = await session.call_tool(tool_name, arguments=kwargs)
                     return result.content[0].text if result.content else "No result"
@@ -172,6 +208,10 @@ class BankingChatbot:
 
             logging.debug(f"Function name: {name}, params: {params}")
 
+            # Extract language parameter
+            target_language = params.get('language', 'ky')
+            logging.info(f"Target language: {target_language}")
+
             # General tool-call block
             mcp_params = {}
 
@@ -189,24 +229,46 @@ class BankingChatbot:
                             mcp_params[key] = int(value)
                         elif key == 'amount':
                             mcp_params[key] = float(value)
-                        else:
+                        elif key != 'language':  # Исключаем language из MCP параметров
                             mcp_params[key] = str(value)
                 result = asyncio.run(self.call_mcp_tool(name, **mcp_params))
+                # Переводим результат на целевой язык
+                result = asyncio.run(self.translate_format_text(result, target_language))
                 return result  
             elif name in [
-                'list_all_card_names', 'get_card_details', 'compare_cards', 'get_card_limits', 'get_card_benefits'
+                'list_all_card_names', 'get_card_details', 'compare_cards', 'get_card_limits', 'get_card_benefits',
+                'get_card_instructions', 'get_card_conditions', 'get_cards_with_features', 'get_card_recommendations',
+                'get_cards_by_type', 'get_cards_by_payment_system', 'get_cards_by_fee_range', 'get_cards_by_currency',
+                'get_bank_info', 'get_bank_mission', 'get_bank_values', 'get_ownership_info', 'get_branch_network',
+                'get_contact_info', 'get_complete_about_us', 'get_about_us_section'
             ]:  
-                result = asyncio.run(self.call_mcp_tool(name, **params))
-                print("result", result)
-                result = asyncio.run(self.translate_text(result, "kyrgyz"))
-                print("result", result)
+                # Убираем language из параметров для MCP
+                mcp_params = {k: v for k, v in params.items() if k != 'language'}
+                result = asyncio.run(self.call_mcp_tool(name, **mcp_params))
+
+                # Переводим результат на целевой язык
+                result = asyncio.run(self.translate_format_text(result, target_language))
                 return result
             else:
                 logging.error(f"Unknown function call name: {name}")
-                return "Түшүнүксүз функциялык чакыруу."
+                error_msg = "Түшүнүксүз функциялык чакыруу."
+                if target_language != 'ky':
+                    error_msg = asyncio.run(self.translate_format_text(error_msg, target_language))
+                return error_msg
         except Exception as e:
             logging.exception(f"Exception in handle_gemini_function_call: {e}, function_call: {function_call}")
-            return "Кечиресиз, функциялык чакыруу ишке ашкан жок. Кайра аракет кылыңыз же банкка кайрылыңыз."
+            error_msg = "Кечиресиз, функциялык чакыруу ишке ашкан жок. Кайра аракет кылыңыз же банкка кайрылыңыз."
+            # Пытаемся получить язык из параметров
+            try:
+                params = getattr(function_call, 'parameters', None) or function_call.get('parameters', {})
+                if hasattr(params, 'items'):
+                    params = dict(params.items())
+                target_language = params.get('language', 'ky')
+                if target_language != 'ky':
+                    error_msg = asyncio.run(self.translate_format_text(error_msg, target_language))
+            except:
+                pass
+            return error_msg
 
 
 # Create a global instance
