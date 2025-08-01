@@ -50,8 +50,86 @@
     <!-- Main Chat Container -->
     <div class="container-fluid h-100">
         <div class="row h-100">
-            <div class="col-12">
+            <!-- Left Sidebar with Popular Questions -->
+            <div class="col-md-3 sidebar-container" id="sidebarContainer">
+                <div class="sidebar" id="sidebar">
+                    <div class="sidebar-header">
+                        <h5><i class="fas fa-lightbulb me-2"></i>Популярдуу суроолор</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="hideSidebarBtn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="question-category">
+                            <h6><i class="fas fa-wallet me-2"></i>Баланс жана транзакциялар</h6>
+                            <div class="question-list">
+                                <button class="question-btn" data-question="Канча акча бар?">
+                                    <i class="fas fa-coins me-2"></i>Канча акча бар?
+                                </button>
+                                <button class="question-btn" data-question="Акыркы транзакцияларымды көрсөт">
+                                    <i class="fas fa-history me-2"></i>Акыркы транзакцияларымды көрсөт
+                                </button>
+                                <button class="question-btn" data-question="Кимге акыркы жолу котордум?">
+                                    <i class="fas fa-user me-2"></i>Кимге акыркы жолу котордум?
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="question-category">
+                            <h6><i class="fas fa-credit-card me-2"></i>Карталар</h6>
+                            <div class="question-list">
+                                <button class="question-btn" data-question="Карталардын тизмесин көрсөт">
+                                    <i class="fas fa-list me-2"></i>Карталардын тизмесин көрсөт
+                                </button>
+                                <button class="question-btn" data-question="Visa Classic Debit картасы тууралуу маалымат">
+                                    <i class="fas fa-info-circle me-2"></i>Visa Classic Debit картасы тууралуу маалымат
+                                </button>
+                                <button class="question-btn" data-question="Visa Classic Debit жана Visa Gold Debit карталарын салыштыр">
+                                    <i class="fas fa-balance-scale me-2"></i>Visa Classic жана Visa Gold салыштыруу
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="question-category">
+                            <h6><i class="fas fa-piggy-bank me-2"></i>Депозиттер</h6>
+                            <div class="question-list">
+                                <button class="question-btn" data-question="Депозиттердин тизмесин көрсөт">
+                                    <i class="fas fa-list me-2"></i>Депозиттердин тизмесин көрсөт
+                                </button>
+                                <button class="question-btn" data-question="Demand Deposit тууралуу маалымат">
+                                    <i class="fas fa-info-circle me-2"></i>Demand Deposit тууралуу маалымат
+                                </button>
+                                <button class="question-btn" data-question="Classic Term Deposit жана Replenishable Deposit салыштыруу">
+                                    <i class="fas fa-balance-scale me-2"></i>Classic жана Replenishable салыштыруу
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="question-category">
+                            <h6><i class="fas fa-university me-2"></i>Банк тууралуу</h6>
+                            <div class="question-list">
+                                <button class="question-btn" data-question="Банк тууралуу маалымат">
+                                    <i class="fas fa-info-circle me-2"></i>Банк тууралуу маалымат
+                                </button>
+                                <button class="question-btn" data-question="Банктын байланыш маалыматтары">
+                                    <i class="fas fa-phone me-2"></i>Банктын байланыш маалыматтары
+                                </button>
+                                <button class="question-btn" data-question="Банктын филиалдары">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Банктын филиалдары
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="col-md-9">
                 <div class="chat-container">
+                    <!-- Show Sidebar Button -->
+                    <button class="btn btn-outline-secondary btn-sm" id="showSidebarBtn" style="position: absolute; top: 10px; left: 20px; z-index: 1000;">
+                        <i class="fas fa-lightbulb"></i> Суроолор
+                    </button>
                     <!-- Chat Messages Area -->
                     <div class="chat-messages" id="chatMessages">
                         <!-- Welcome message -->
@@ -59,22 +137,24 @@
                             <div class="message-content">
                                 <div class="message-header">
                                     <i class="fas fa-robot me-2"></i>
-                                    <strong>Банк Жардамчысы</strong>
+                                    <strong>DemirBot</strong>
                                     <small class="text-muted ms-2">Азыр эле</small>
                                 </div>
                                 <div class="message-text">
-                                    <p>Салам! 👋</p>
-                                    <p>Банк Жардамчысына кош келиңиз! Мен сизге жалпы банк суроолору, биздин кызматтар жана жеке банк эсебиңиз тууралуу маалымат бере алам.</p>
+                                    <p>Салам, колдонуучу! 👋</p>
+                                    <p>Мен DemirBot - DemirBankтын смарт жардамчысы! Мен сизге банк операцияларын жүргүзүүгө жана суроолорго жооп берүүгө жардам берем.</p>
+                                    <p><strong>Мен төмөнкүлөрдү жасай алам:</strong></p>
                                     <ul>
-                                        <li>Эсептериңиздин тизмеси жана балансы</li>
-                                        <li>Акыркы транзакцияларыңыз</li>
-                                        <li>Кимге жана канча акча которгонсуз</li>
-                                        <li>Банк кызматтары жана процедуралары</li>
-                                        <li>Каржы сабаттуулугу жана коопсуздук</li>
-                                        <li>Акча которуу ассистенти катары иштейм (мисалы, "100 сомду Бакытка котор" ж.б.)</li>
+                                        <li>💰 Эсептериңиздин балансын көрсөтүү</li>
+                                        <li>📊 Акыркы транзакцияларыңызды көрсөтүү</li>
+                                        <li>💸 Акча которуу операцияларын жүргүзүү</li>
+                                        <li>💳 Карталар тууралуу маалымат берүү</li>
+                                        <li>🏦 Депозиттер тууралуу маалымат берүү</li>
+                                        <li>📞 Банк кызматтары тууралуу жооп берүү</li>
                                     </ul>
-                                    <p>Жеке суроолорду да бере аласыз: мисалы, "Канча акча бар?", "Акыркы транзакцияларымды көрсөт", "Кимге акыркы жолу котордум?" ж.б.</p>
+                                    <p><strong>Мисалы:</strong> "Канча акча бар?", "100 сомду Бакытка котор", "Visa Classic картасы тууралуу маалымат"</p>
                                     <p><strong>Эскертүү:</strong> Купуя маалыматты (сыр сөз, PIN) эч качан бөлүшпөңүз!</p>
+                                    <p>Кандай жардам керек? 🤔</p>
                                 </div>
                             </div>
                         </div>

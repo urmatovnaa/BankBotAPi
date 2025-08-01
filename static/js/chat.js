@@ -30,6 +30,7 @@ class BankingChatbot {
                 this.userName = data.user_name;
                 this.showWelcomeMessage();
                 this.loadChatHistory();
+                this.initializeSidebar();
                 
                 // Update auth buttons and user name display
                 this.updateAuthButtons();
@@ -45,7 +46,7 @@ class BankingChatbot {
     showWelcomeMessage() {
         const userName = this.userName || 'колдонуучу';
         const welcomeText = `\
-Салам, ${userName}! 👋\n\nDemirBank'ка кош келиңиз! Мен сизге жалпы банк суроолору, биздин кызматтар жана жеке банк эсебиңиз тууралуу маалымат бере алам.\n\nМен төмөнкүлөр боюнча жардам бере алам:\n• Эсептериңиздин тизмеси жана балансы\n• Акыркы транзакцияларыңыз\n• Кимге жана канча акча которгонсуз\n• Банк кызматтары жана процедуралары\n• Каржы сабаттуулугу жана коопсуздук\n• Акча которуу ассистенти катары иштейм (мисалы, "100 сомду Бакытка котор" ж.б.)\n\nЖеке суроолорду да бере аласыз: мисалы, "Канча акча бар?", "Акыркы транзакцияларымды көрсөт", "Кимге акыркы жолу котордум?" ж.б.\n\nЭскертүү: Купуя маалыматты (сыр сөз, PIN) эч качан бөлүшпөңүз!`;
+Салам, ${userName}! 👋\n\nМен DemirBot - DemirBankтын смарт жардамчысы! Мен сизге банк операцияларын жүргүзүүгө жана суроолорго жооп берүүгө жардам берем.\n\nМен төмөнкүлөрдү жасай алам:\n• 💰 Эсептериңиздин балансын көрсөтүү\n• 📊 Акыркы транзакцияларыңызды көрсөтүү\n• 💸 Акча которуу операцияларын жүргүзүү\n• 💳 Карталар тууралуу маалымат берүү\n• 🏦 Депозиттер тууралуу маалымат берүү\n• 📞 Банк кызматтары тууралуу жооп берүү\n\nМисалы: "Канча акча бар?", "100 сомду Бакытка котор", "Visa Classic картасы тууралуу маалымат"\n\nЭскертүү: Купуя маалыматты (сыр сөз, PIN) эч качан бөлүшпөңүз!\n\nКандай жардам керек, ${userName}? 🤔`;
         this.addMessage(welcomeText, 'bot');
     }
     
@@ -69,6 +70,9 @@ class BankingChatbot {
         
         // Setup analytics modal
         this.setupAnalyticsModal();
+        
+        // Initialize sidebar
+        this.initializeSidebar();
         
         // Add event listeners for login and register buttons
         const loginBtn = document.getElementById('loginBtn');
@@ -684,6 +688,78 @@ class BankingChatbot {
             // Show error message in category table
             document.getElementById('categoryStats').innerHTML = 
                 '<tr><td colspan="3" class="text-center text-danger">Error loading analytics</td></tr>';
+        }
+    }
+
+    // Sidebar functionality
+    initializeSidebar() {
+        this.hideSidebarBtn = document.getElementById('hideSidebarBtn');
+        this.showSidebarBtn = document.getElementById('showSidebarBtn');
+        this.sidebarContainer = document.getElementById('sidebarContainer');
+        this.questionBtns = document.querySelectorAll('.question-btn');
+        
+        // Event listeners for sidebar
+        if (this.hideSidebarBtn) {
+            this.hideSidebarBtn.addEventListener('click', () => this.hideSidebar());
+        }
+        
+        if (this.showSidebarBtn) {
+            this.showSidebarBtn.addEventListener('click', () => this.showSidebar());
+        }
+        
+        // Event listeners for question buttons
+        this.questionBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const question = e.currentTarget.getAttribute('data-question');
+                this.askQuestion(question);
+            });
+        });
+        
+        // Check if sidebar should be hidden on mobile
+        this.checkSidebarVisibility();
+        window.addEventListener('resize', () => this.checkSidebarVisibility());
+    }
+    
+    showSidebar() {
+        if (window.innerWidth <= 768) {
+            this.sidebarContainer.classList.add('show');
+        } else {
+            this.sidebarContainer.classList.remove('hidden');
+            this.sidebarContainer.style.display = 'block';
+        }
+    }
+    
+    hideSidebar() {
+        if (window.innerWidth <= 768) {
+            this.sidebarContainer.classList.remove('show');
+        } else {
+            this.sidebarContainer.classList.add('hidden');
+            this.sidebarContainer.style.display = 'none';
+        }
+    }
+    
+    checkSidebarVisibility() {
+        if (window.innerWidth <= 768) {
+            this.sidebarContainer.classList.remove('show');
+        }
+    }
+    
+    askQuestion(question) {
+        // Set the question in the input field
+        this.messageInput.value = question;
+        
+        // Trigger the send button
+        this.sendBtn.click();
+        
+        // Clear the input field after sending
+        setTimeout(() => {
+            this.messageInput.value = '';
+            this.adjustInputHeight();
+        }, 100);
+        
+        // Hide sidebar on mobile after asking a question
+        if (window.innerWidth <= 768) {
+            this.hideSidebar();
         }
     }
 }
