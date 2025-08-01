@@ -15,7 +15,11 @@ from demir_functions import (
     get_cards_by_type, get_cards_by_payment_system, get_cards_by_fee_range, get_cards_by_currency,
     get_card_instructions, get_card_conditions, get_cards_with_features, get_card_recommendations,
     get_bank_info, get_bank_mission, get_bank_values, get_ownership_info, get_branch_network,
-    get_contact_info, get_complete_about_us, get_about_us_section
+    get_contact_info, get_complete_about_us, get_about_us_section,
+    list_all_deposit_names, get_deposit_details, compare_deposits, get_deposits_by_currency,
+    get_deposits_by_term_range, get_deposits_by_min_amount, get_deposits_by_rate_range,
+    get_deposits_with_replenishment, get_deposits_with_capitalization, get_deposits_by_withdrawal_type,
+    get_deposit_recommendations, get_government_securities, get_child_deposits, get_online_deposits
 )
 
 from models import User
@@ -552,6 +556,236 @@ async def get_about_us_section_tool(section: str):
     else:
         result_text += str(data)
     
+    return result_text
+
+
+# Deposit tools
+
+@server.tool(
+    name="list_all_deposit_names",
+    description="DemirBank'тагы бардык депозиттердин тизмесин кайтарат"
+)
+async def list_all_deposit_names_tool():
+    deposits = list_all_deposit_names()
+    result_text = "💰 Бардык депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+    return result_text
+
+@server.tool(
+    name="get_deposit_details",
+    description="Депозит аталышы боюнча бардык негизги маалыматты кайтарат (валюта, мөөнөт, пайыздык ставка, минималдык сумма, сүрөттөмө)."
+)
+async def get_deposit_details_tool(deposit_name: str):
+    deposit = get_deposit_details(deposit_name)
+    if "error" in deposit:
+        return deposit["error"]
+    
+    result_text = f"💰 {deposit['name']}\n\n"
+    result_text += f"💱 Валюта: {', '.join(deposit.get('currency', []))}\n"
+    result_text += f"💵 Минималдык сумма: {deposit.get('min_amount', 'белгисиз')}\n"
+    result_text += f"⏰ Мөөнөт: {deposit.get('term', 'белгисиз')}\n"
+    result_text += f"📈 Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+    result_text += f"💸 Чыгаруу: {deposit.get('withdrawal', 'белгисиз')}\n"
+    result_text += f"➕ Толуктоо: {deposit.get('replenishment', 'белгисиз')}\n"
+    result_text += f"📊 Капитализация: {deposit.get('capitalization', 'белгисиз')}\n"
+    result_text += f"📝 Сүрөттөмө: {deposit.get('descr', 'белгисиз')}\n"
+    
+    return result_text
+
+@server.tool(
+    name="compare_deposits",
+    description="Депозиттерди негизги параметрлер боюнча салыштырат. Аргумент катары депозиттердин аттарынын тизмеси берилет (2-4 депозит)."
+)
+async def compare_deposits_tool(deposit_names: list):
+    deposits = compare_deposits(deposit_names)
+    if len(deposits) < 2:
+        return "Депозит салыштыруу үчүн эң азы 2 депозит керек."
+    
+    all_keys = set()
+    for deposit in deposits:
+        all_keys.update(deposit.keys())
+    all_keys = list(all_keys)
+    
+    result_text = "📋 Салыштырылган депозиттер:\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+    result_text += "\n"
+    
+    # Detailed comparison
+    for key in all_keys:
+        if key == "name": continue
+        values = []
+        for deposit in deposits:
+            value = deposit.get(key, "белгисиз")
+            if isinstance(value, list): value = ", ".join(value)
+            elif isinstance(value, dict): value = str(value)
+            values.append(value)
+        
+        unique_values = set()
+        for val in values:
+            if isinstance(val, dict): unique_values.add(str(val))
+            else: unique_values.add(val)
+        
+        if len(unique_values) == 1:
+            result_text += f"✅ Бардыгы бирдей: {values[0]}\n"
+        else:
+            for i, (deposit, value) in enumerate(zip(deposits, values), 1):
+                result_text += f"  {i}. {deposit['name']}: {value}\n"
+        result_text += "\n"
+    
+    return result_text
+
+@server.tool(
+    name="get_deposits_by_currency",
+    description="Депозиттерди валюта боюнча фильтрлейт (KGS, USD, EUR, RUB)."
+)
+async def get_deposits_by_currency_tool(currency: str):
+    deposits = get_deposits_by_currency(currency)
+    result_text = f"💰 {currency.upper()} валютасындагы депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Минималдык сумма: {deposit.get('min_amount', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposits_by_term_range",
+    description="Депозиттерди мөөнөт диапазону боюнча фильтрлейт."
+)
+async def get_deposits_by_term_range_tool(min_term: str = None, max_term: str = None):
+    deposits = get_deposits_by_term_range(min_term, max_term)
+    result_text = "⏰ Мөөнөт боюнча депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposits_by_min_amount",
+    description="Депозиттерди минималдык сумма боюнча фильтрлейт."
+)
+async def get_deposits_by_min_amount_tool(max_amount: str):
+    deposits = get_deposits_by_min_amount(max_amount)
+    result_text = f"💵 {max_amount} чейинки минималдык суммадагы депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Минималдык сумма: {deposit.get('min_amount', 'белгисиз')}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposits_by_rate_range",
+    description="Депозиттерди пайыздык ставка диапазону боюнча фильтрлейт."
+)
+async def get_deposits_by_rate_range_tool(min_rate: str = None, max_rate: str = None):
+    deposits = get_deposits_by_rate_range(min_rate, max_rate)
+    result_text = "📈 Пайыздык ставка боюнча депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposits_with_replenishment",
+    description="Толуктоого мүмкүндүк берген депозиттерди кайтарат."
+)
+async def get_deposits_with_replenishment_tool():
+    deposits = get_deposits_with_replenishment()
+    result_text = "➕ Толуктоого мүмкүндүк берген депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposits_with_capitalization",
+    description="Капитализация мүмкүндүгүн берген депозиттерди кайтарат."
+)
+async def get_deposits_with_capitalization_tool():
+    deposits = get_deposits_with_capitalization()
+    result_text = "📊 Капитализация мүмкүндүгүн берген депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposits_by_withdrawal_type",
+    description="Депозиттерди чыгаруу түрү боюнча фильтрлейт."
+)
+async def get_deposits_by_withdrawal_type_tool(withdrawal_type: str):
+    deposits = get_deposits_by_withdrawal_type(withdrawal_type)
+    result_text = f"💸 {withdrawal_type} чыгаруу түрүндөгү депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Чыгаруу: {deposit.get('withdrawal', 'белгисиз')}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_deposit_recommendations",
+    description="Критерийлерге ылайык депозит сунуштарын кайтарат."
+)
+async def get_deposit_recommendations_tool(criteria: dict):
+    deposits = get_deposit_recommendations(criteria)
+    result_text = "🎯 Депозит сунуштары:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n"
+        result_text += f"   Минималдык сумма: {deposit.get('min_amount', 'белгисиз')}\n"
+        if 'recommendation_score' in deposit:
+            result_text += f"   Сунуштук балл: {deposit['recommendation_score']}\n"
+        result_text += "\n"
+    return result_text
+
+@server.tool(
+    name="get_government_securities",
+    description="Мамлекеттик баалуу кагаздарды кайтарат (Treasury Bills, NBKR Notes)."
+)
+async def get_government_securities_tool():
+    securities = get_government_securities()
+    result_text = "🏛️ Мамлекеттик баалуу кагаздар:\n\n"
+    for i, security in enumerate(securities, 1):
+        result_text += f"{i}. {security['name']}\n"
+        result_text += f"   Мөөнөт: {security.get('term', 'белгисиз')}\n"
+        result_text += f"   Номиналдык сумма: {security.get('nominal_amount', 'белгисиз')}\n"
+        result_text += f"   Түрү: {security.get('type', 'белгисиз')}\n"
+        result_text += f"   Чыгаруучу: {security.get('issuer', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_child_deposits",
+    description="Балдар үчүн атайын депозиттерди кайтарат."
+)
+async def get_child_deposits_tool():
+    deposits = get_child_deposits()
+    result_text = "👶 Балдар үчүн депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n"
+        result_text += f"   Минималдык сумма: {deposit.get('min_amount', 'белгисиз')}\n\n"
+    return result_text
+
+@server.tool(
+    name="get_online_deposits",
+    description="Онлайн ачылуучу депозиттерди кайтарат."
+)
+async def get_online_deposits_tool():
+    deposits = get_online_deposits()
+    result_text = "🌐 Онлайн депозиттер:\n\n"
+    for i, deposit in enumerate(deposits, 1):
+        result_text += f"{i}. {deposit['name']}\n"
+        result_text += f"   Пайыздык ставка: {deposit.get('rate', 'белгисиз')}\n"
+        result_text += f"   Мөөнөт: {deposit.get('term', 'белгисиз')}\n"
+        result_text += f"   Минималдык сумма: {deposit.get('min_amount', 'белгисиз')}\n\n"
     return result_text
 
 

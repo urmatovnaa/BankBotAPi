@@ -240,7 +240,11 @@ class BankingChatbot:
                 'get_card_instructions', 'get_card_conditions', 'get_cards_with_features', 'get_card_recommendations',
                 'get_cards_by_type', 'get_cards_by_payment_system', 'get_cards_by_fee_range', 'get_cards_by_currency',
                 'get_bank_info', 'get_bank_mission', 'get_bank_values', 'get_ownership_info', 'get_branch_network',
-                'get_contact_info', 'get_complete_about_us', 'get_about_us_section'
+                'get_contact_info', 'get_complete_about_us', 'get_about_us_section',
+                'list_all_deposit_names', 'get_deposit_details', 'compare_deposits', 'get_deposits_by_currency',
+                'get_deposits_by_term_range', 'get_deposits_by_min_amount', 'get_deposits_by_rate_range',
+                'get_deposits_with_replenishment', 'get_deposits_with_capitalization', 'get_deposits_by_withdrawal_type',
+                'get_deposit_recommendations', 'get_government_securities', 'get_child_deposits', 'get_online_deposits'
             ]:  
                 # Убираем language из параметров для MCP
                 mcp_params = {k: v for k, v in params.items() if k != 'language'}

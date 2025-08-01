@@ -490,5 +490,213 @@ gemini_function_schemas = {
             },
             "required": ["section"]
         }
+    },
+    "list_all_deposit_names": {
+        "name": "list_all_deposit_names",
+        "description": "DemirBank'тагы бардык депозиттердин тизмесин кайтарат",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_deposit_details": {
+        "name": "get_deposit_details",
+        "description": "Депозит аталышы боюнча бардык негизги маалыматты кайтарат (валюта, мөөнөт, пайыздык ставка, минималдык сумма, сүрөттөмө).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "deposit_name": {
+                    "type": "string",
+                    "description": "Депозиттин аталышы",
+                    "enum": [
+                        "Demand Deposit",
+                        "Classic Term Deposit",
+                        "Replenishable Deposit",
+                        "Standard Term Deposit",
+                        "Online Deposit",
+                        "Child Deposit",
+                        "Government Treasury Bills",
+                        "NBKR Notes"
+                    ]
+                },
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": ["deposit_name"]
+        }
+    },
+    "compare_deposits": {
+        "name": "compare_deposits",
+        "description": "Депозиттерди негизги параметрлер боюнча салыштырат. Аргумент катары депозиттердин аттарынын тизмеси берилет (2-4 депозит).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "deposit_names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Demand Deposit",
+                            "Classic Term Deposit",
+                            "Replenishable Deposit",
+                            "Standard Term Deposit",
+                            "Online Deposit",
+                            "Child Deposit",
+                            "Government Treasury Bills",
+                            "NBKR Notes"
+                        ]
+                    },
+                    "description": "Салыштырыла турган депозиттердин аталыштары"
+                },
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": ["deposit_names"]
+        }
+    },
+    "get_deposits_by_currency": {
+        "name": "get_deposits_by_currency",
+        "description": "Депозиттерди валюта боюнча фильтрлейт (KGS, USD, EUR, RUB).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "description": "Валюта коду",
+                    "enum": ["KGS", "USD", "EUR", "RUB"]
+                },
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": ["currency"]
+        }
+    },
+    "get_deposits_by_term_range": {
+        "name": "get_deposits_by_term_range",
+        "description": "Депозиттерди мөөнөт диапазону боюнча фильтрлейт.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "min_term": {"type": "string", "description": "Минималдык мөөнөт"},
+                "max_term": {"type": "string", "description": "Максималдык мөөнөт"},
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_deposits_by_min_amount": {
+        "name": "get_deposits_by_min_amount",
+        "description": "Депозиттерди минималдык сумма боюнча фильтрлейт.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "max_amount": {"type": "string", "description": "Максималдык минималдык сумма"},
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": ["max_amount"]
+        }
+    },
+    "get_deposits_by_rate_range": {
+        "name": "get_deposits_by_rate_range",
+        "description": "Депозиттерди пайыздык ставка диапазону боюнча фильтрлейт.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "min_rate": {"type": "string", "description": "Минималдык пайыздык ставка"},
+                "max_rate": {"type": "string", "description": "Максималдык пайыздык ставка"},
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_deposits_with_replenishment": {
+        "name": "get_deposits_with_replenishment",
+        "description": "Толуктоого мүмкүндүк берген депозиттерди кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_deposits_with_capitalization": {
+        "name": "get_deposits_with_capitalization",
+        "description": "Капитализация мүмкүндүгүн берген депозиттерди кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_deposits_by_withdrawal_type": {
+        "name": "get_deposits_by_withdrawal_type",
+        "description": "Депозиттерди чыгаруу түрү боюнча фильтрлейт.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "withdrawal_type": {"type": "string", "description": "Чыгаруу түрү"},
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": ["withdrawal_type"]
+        }
+    },
+    "get_deposit_recommendations": {
+        "name": "get_deposit_recommendations",
+        "description": "Критерийлерге ылайык депозит сунуштарын кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "criteria": {
+                    "type": "object",
+                    "description": "Сунуштук критерийлери",
+                    "properties": {
+                        "currency": {"type": "string", "description": "Валюта"},
+                        "min_amount": {"type": "string", "description": "Минималдык сумма"},
+                        "term": {"type": "string", "description": "Мөөнөт"},
+                        "rate_preference": {"type": "string", "description": "Пайыздык ставка талабы"},
+                        "replenishment_needed": {"type": "boolean", "description": "Толуктоо керекпи"},
+                        "capitalization_needed": {"type": "boolean", "description": "Капитализация керекпи"}
+                    }
+                },
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": ["criteria"]
+        }
+    },
+    "get_government_securities": {
+        "name": "get_government_securities",
+        "description": "Мамлекеттик баалуу кагаздарды кайтарат (Treasury Bills, NBKR Notes).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_child_deposits": {
+        "name": "get_child_deposits",
+        "description": "Балдар үчүн атайын депозиттерди кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
+    },
+    "get_online_deposits": {
+        "name": "get_online_deposits",
+        "description": "Онлайн ачылуучу депозиттерди кайтарат.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "language": {"type": "string", "description": "Язык ответа (ky, ru, en)", "enum": ["ky", "ru", "en"]}
+            },
+            "required": []
+        }
     }
 }

@@ -315,3 +315,259 @@ def get_about_us_section(section: str) -> Any:
     """Get specific section of about us information"""
     data = load_about_us_data()
     return data.get(section, f"Section '{section}' not found")
+
+# Deposit functions
+DEPOSITS_PATH = Path("generalInfo/retail/deposits.json")
+
+def load_deposits_data() -> Dict[str, Any]:
+    """Load deposits data from JSON file"""
+    try:
+        with open(DEPOSITS_PATH, encoding='utf-8') as f:
+            deposits_json = json.load(f)
+            return deposits_json.get('deposits', {})
+    except Exception as e:
+        logging.exception(f"Error loading deposits data: {e}")
+        return {}
+
+# 22. List all deposit names
+def list_all_deposit_names() -> List[Dict[str, str]]:
+    """Get list of all available deposit names"""
+    deposits = load_deposits_data()
+    result = []
+    for deposit in deposits.values():
+        result.append({
+            "name": deposit.get("name", ""),
+        })
+    return result
+
+# 23. Get deposit details by name
+def get_deposit_details(deposit_name: str) -> Dict[str, Any]:
+    """Get detailed information about a specific deposit"""
+    deposits = load_deposits_data()
+    for deposit in deposits.values():
+        if deposit.get("name", "").lower() == deposit_name.lower():
+            return deposit
+    return {"error": "Депозит табылган жок."}
+
+# 24. Compare deposits by names
+def compare_deposits(deposit_names: List[str]) -> List[Dict[str, Any]]:
+    """Compare multiple deposits by their names"""
+    deposits = load_deposits_data()
+    found = []
+    names_lower = [n.lower() for n in deposit_names]
+    for deposit in deposits.values():
+        if deposit.get("name", "").lower() in names_lower:
+            found.append(deposit)
+    return found
+
+# 25. Get deposits by currency
+def get_deposits_by_currency(currency: str) -> List[Dict[str, Any]]:
+    """Get deposits filtered by currency"""
+    deposits = load_deposits_data()
+    result = []
+    currency_upper = currency.upper()
+    
+    for deposit in deposits.values():
+        currencies = deposit.get("currency", [])
+        if isinstance(currencies, list) and currency_upper in currencies:
+            result.append(deposit)
+    
+    return result
+
+# 26. Get deposits by term range
+def get_deposits_by_term_range(min_term: str = None, max_term: str = None) -> List[Dict[str, Any]]:
+    """Get deposits filtered by term range"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        term = deposit.get("term", "")
+        if not term:
+            continue
+            
+        # Simple term matching (can be improved with more sophisticated parsing)
+        if min_term and min_term.lower() in term.lower():
+            result.append(deposit)
+        elif max_term and max_term.lower() in term.lower():
+            result.append(deposit)
+        elif not min_term and not max_term:
+            result.append(deposit)
+    
+    return result
+
+# 27. Get deposits by minimum amount
+def get_deposits_by_min_amount(max_amount: str) -> List[Dict[str, Any]]:
+    """Get deposits with minimum amount less than or equal to specified amount"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        min_amount = deposit.get("min_amount", "")
+        if not min_amount:
+            continue
+            
+        # Simple amount comparison (can be improved with currency conversion)
+        if max_amount.lower() in min_amount.lower():
+            result.append(deposit)
+    
+    return result
+
+# 28. Get deposits by rate range
+def get_deposits_by_rate_range(min_rate: str = None, max_rate: str = None) -> List[Dict[str, Any]]:
+    """Get deposits filtered by interest rate range"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        rate = deposit.get("rate", "")
+        if not rate:
+            continue
+            
+        # Simple rate matching
+        if min_rate and min_rate.lower() in rate.lower():
+            result.append(deposit)
+        elif max_rate and max_rate.lower() in rate.lower():
+            result.append(deposit)
+        elif not min_rate and not max_rate:
+            result.append(deposit)
+    
+    return result
+
+# 29. Get deposits with replenishment option
+def get_deposits_with_replenishment() -> List[Dict[str, Any]]:
+    """Get deposits that allow replenishment"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        replenishment = deposit.get("replenishment", "")
+        if "ооба" in replenishment.lower() or "yes" in replenishment.lower():
+            result.append(deposit)
+    
+    return result
+
+# 30. Get deposits with capitalization
+def get_deposits_with_capitalization() -> List[Dict[str, Any]]:
+    """Get deposits that offer capitalization"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        capitalization = deposit.get("capitalization", "")
+        if "ооба" in capitalization.lower() or "yes" in capitalization.lower():
+            result.append(deposit)
+    
+    return result
+
+# 31. Get deposits by withdrawal type
+def get_deposits_by_withdrawal_type(withdrawal_type: str) -> List[Dict[str, Any]]:
+    """Get deposits filtered by withdrawal type"""
+    deposits = load_deposits_data()
+    result = []
+    withdrawal_type_lower = withdrawal_type.lower()
+    
+    for deposit in deposits.values():
+        withdrawal = deposit.get("withdrawal", "")
+        if withdrawal_type_lower in withdrawal.lower():
+            result.append(deposit)
+    
+    return result
+
+# 32. Get deposit recommendations
+def get_deposit_recommendations(criteria: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Get deposit recommendations based on criteria"""
+    deposits = load_deposits_data()
+    result = []
+    
+    currency = criteria.get("currency")
+    min_amount = criteria.get("min_amount")
+    term = criteria.get("term")
+    rate_preference = criteria.get("rate_preference")
+    replenishment_needed = criteria.get("replenishment_needed")
+    capitalization_needed = criteria.get("capitalization_needed")
+    
+    for deposit in deposits.values():
+        score = 0
+        
+        # Currency matching
+        if currency:
+            currencies = deposit.get("currency", [])
+            if isinstance(currencies, list) and currency.upper() in currencies:
+                score += 5
+        
+        # Amount matching
+        if min_amount:
+            deposit_min = deposit.get("min_amount", "")
+            if min_amount.lower() in deposit_min.lower():
+                score += 3
+        
+        # Term matching
+        if term:
+            deposit_term = deposit.get("term", "")
+            if term.lower() in deposit_term.lower():
+                score += 3
+        
+        # Rate preference
+        if rate_preference:
+            deposit_rate = deposit.get("rate", "")
+            if rate_preference.lower() in deposit_rate.lower():
+                score += 2
+        
+        # Replenishment matching
+        if replenishment_needed:
+            replenishment = deposit.get("replenishment", "")
+            if replenishment_needed and "ооба" in replenishment.lower():
+                score += 2
+        
+        # Capitalization matching
+        if capitalization_needed:
+            capitalization = deposit.get("capitalization", "")
+            if capitalization_needed and "ооба" in capitalization.lower():
+                score += 2
+        
+        if score > 0:
+            deposit["recommendation_score"] = score
+            result.append(deposit)
+    
+    # Sort by score
+    result.sort(key=lambda x: x.get("recommendation_score", 0), reverse=True)
+    return result[:5]  # Return top 5 recommendations
+
+# 33. Get government securities
+def get_government_securities() -> List[Dict[str, Any]]:
+    """Get government securities (Treasury Bills, NBKR Notes)"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        name = deposit.get("name", "").lower()
+        if "treasury" in name or "nbkr" in name or "government" in name:
+            result.append(deposit)
+    
+    return result
+
+# 34. Get child deposits
+def get_child_deposits() -> List[Dict[str, Any]]:
+    """Get deposits specifically designed for children"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        name = deposit.get("name", "").lower()
+        if "child" in name or "бала" in name:
+            result.append(deposit)
+    
+    return result
+
+# 35. Get online deposits
+def get_online_deposits() -> List[Dict[str, Any]]:
+    """Get deposits that can be opened online"""
+    deposits = load_deposits_data()
+    result = []
+    
+    for deposit in deposits.values():
+        name = deposit.get("name", "").lower()
+        if "online" in name:
+            result.append(deposit)
+    
+    return result
