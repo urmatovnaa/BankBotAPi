@@ -85,7 +85,7 @@ def chat(user):
         if not user_message:
             return jsonify({'error': 'Message cannot be empty'}), 400
 
-        recent_messages = ChatMessage.query.filter_by(user_id=user.id)\
+        recent_messages = ChatMessage.query.filter_by(user_id=user.id, is_visible=True)\
             .order_by(ChatMessage.timestamp.desc()).limit(5).all()
 
         conversation_history = [
@@ -124,7 +124,7 @@ def chat(user):
 @login_required
 def get_chat_history(user):
     try:
-        messages = ChatMessage.query.filter_by(user_id=user.id).order_by(ChatMessage.timestamp.asc()).all()
+        messages = ChatMessage.query.filter_by(user_id=user.id, is_visible=True).order_by(ChatMessage.timestamp.asc()).all()
         return jsonify({
             'messages': [msg.to_dict() for msg in messages],
             'user_name': user.name if user.name else None
@@ -150,7 +150,8 @@ def get_user_info(user):
 @login_required
 def clear_chat(user):
     try:
-        ChatMessage.query.filter_by(user_id=user.id).delete()
+        # Скрываем все сообщения пользователя вместо удаления
+        ChatMessage.query.filter_by(user_id=user.id).update({'is_visible': False})
         db.session.commit()
         return jsonify({'success': True})
     except Exception as e:
@@ -171,7 +172,7 @@ def submit_feedback(user):
         if not message_id or not rating:
             return jsonify({'error': 'Message ID and rating are required'}), 400
 
-        message = ChatMessage.query.filter_by(id=message_id, user_id=user.id).first()
+        message = ChatMessage.query.filter_by(id=message_id, user_id=user.id, is_visible=True).first()
         if not message:
             return jsonify({'error': 'Message not found'}), 404
 

@@ -105,6 +105,7 @@ class ChatMessage(db.Model):
     message = db.Column(db.Text, nullable=False)
     response = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=True, nullable=False)
 
     # Relationship to feedback
     feedback = db.relationship('MessageFeedback',
@@ -124,7 +125,8 @@ class ChatMessage(db.Model):
             'response': self.response,
             'timestamp': self.timestamp.isoformat(),
             'category': self.category_id.name if self.category_id else None,
-            'feedback': feedback_data
+            'feedback': feedback_data,
+            'is_visible': self.is_visible
         }
 
 
